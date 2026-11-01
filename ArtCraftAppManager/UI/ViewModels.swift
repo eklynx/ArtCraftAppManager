@@ -9,6 +9,32 @@ enum RowButton: Equatable, Hashable {
     case run, openLocation, uninstall, update, install, cancel
 }
 
+/// Every action a row's context menu can offer (REQ-WIN-22).
+enum RowAction: Equatable, Hashable {
+    case install, run, update, openLocation, uninstall, cancel, copyPath, openReleasesPage
+
+    init(_ button: RowButton) {
+        switch button {
+        case .install: self = .install
+        case .run: self = .run
+        case .update: self = .update
+        case .openLocation: self = .openLocation
+        case .uninstall: self = .uninstall
+        case .cancel: self = .cancel
+        }
+    }
+}
+
+/// Date text for the context menu's info lines (REQ-WIN-23).
+enum RowDateText {
+    static func format(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.dateFormat = "d MMM yyyy"
+        return formatter.string(from: date)
+    }
+}
+
 /// Presentation logic for one list row (docs/specs/04-main-window.md).
 struct AppRowModel {
     var name: String
@@ -19,6 +45,12 @@ struct AppRowModel {
     var progress: Double?
     var inRegistry = true
     var hidesUpdateWhenCurrent = true
+    /// When the Manager installed/updated the installed version, if it did (REQ-WIN-23).
+    var installedByManagerAt: Date?
+    /// GitHub publish date of the installed version, if known.
+    var releasedAt: Date?
+    /// Modification date of the installed `.app`, used when `releasedAt` is unknown.
+    var fileDate: Date?
 
     private var updateAvailable: Bool {
         guard inRegistry, let installed, let available else { return false }
@@ -53,6 +85,34 @@ struct AppRowModel {
             if updateAvailable { enabled.insert(.update) }
         }
         return enabled
+    }
+
+    // MARK: Context menu (REQ-WIN-22…24)
+
+    /// Menu entries in fixed order; inapplicable ones stay listed but disabled.
+    var menuActions: [RowAction] {
+        if !inRegistry { return [.run, .openLocation, .uninstall, .copyPath] }
+        return [installed == nil ? .install : .run, .update, .openLocation, .uninstall, .cancel, .copyPath, .openReleasesPage]
+    }
+
+    var enabledMenuActions: Set<RowAction> {
+        var enabled = Set(enabledButtons.map(RowAction.init))
+        if progress == nil {
+            if installed != nil { enabled.insert(.copyPath) }
+            if inRegistry { enabled.insert(.openReleasesPage) }
+        }
+        return enabled
+    }
+
+    /// The greyed information lines at the top of the menu.
+    var infoLines: [String] {
+        guard installed != nil else { return ["Not installed"] }
+        let manager = installedByManagerAt.map { "Updated by Manager: \(RowDateText.format($0))" } ?? "Not installed by Manager"
+        let released: String
+        if let releasedAt { released = "Released: \(RowDateText.format(releasedAt))" }
+        else if let fileDate { released = "File date: \(RowDateText.format(fileDate))" }
+        else { released = "Released: unknown" }
+        return [manager, released]
     }
 
     var showsRunningLabel: Bool { isRunning && installed != nil }

@@ -33,6 +33,9 @@ Prototype: [`../prototypes/ApplicationLine.svg`](../prototypes/ApplicationLine.s
 ## Menu bar menu
 - **REQ-WIN-19** The menu bar icon (REQ-WIN-9) is a template glyph with a count badge when updates are available. The menu lists one line per App with an update, in the App order, (e.g. "GridCraft 0.14.2 → 0.15.0"), then **Check Now**, **Open Manager**, **Quit**.
 - **REQ-WIN-20** Clicking an App line opens the Manager scrolled to that App's row.
+- **REQ-WIN-22** Right-clicking (or Control-clicking) a row opens a context menu. Its entries, in this fixed order, are: **Install** (not installed) or **Run**; **Update**; **Open Location**; **Uninstall**; **Cancel** (only enabled during the download phase); **Copy Install Path**; **Open Releases Page** (the registry `releasesUrl`). Entries that do not apply are disabled, not hidden. "No longer in registry" rows show only Run, Open Location, Uninstall and Copy Install Path. Uninstall asks for the same confirmation as the button (REQ-INS-14). The entries are also exposed as accessibility actions.
+- **REQ-WIN-23** The menu starts with two greyed, non-clickable information lines, then a divider. **Updated by Manager: <date>** is when the Manager last installed or updated the installed version; for a copy it never installed this version of, it reads "Not installed by Manager". **Released: <date>** is the GitHub publish date of the installed version; when unknown it reads "File date: <date>" using the `.app`'s modification date. A not-installed row shows the single line "Not installed". Dates are formatted `d MMM yyyy`.
+- **REQ-WIN-24** The menu and the row buttons never disagree: an action is enabled in the menu exactly when its button is enabled (running, busy and update-available rules of REQ-WIN-3/14/15 apply to both).
 
 ## Accessibility
 - **REQ-WIN-12** All buttons have accessibility labels including the App name (e.g. "Update GridCraft"); rows are navigable by keyboard.

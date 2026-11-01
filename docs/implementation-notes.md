@@ -58,6 +58,15 @@ Running log of decisions, changes and tradeoffs beyond the README. Dated 2026-10
 - Settings app list: the list was only 180 pt tall (inner scroll) and the Settings window opened 450 pt tall, hiding apps. The list now sizes to show every app and the window opens ~860 pt tall (resizable, scrolls on small screens) (REQ-SET-13). A UI test checks the last of 14 apps is hittable.
 - Suite: **132 of 132**.
 
+## Row context menu (REQ-WIN-22…24)
+- Right-click a row: two greyed info lines, then Install/Run, Update, Open Location, Uninstall, Cancel, Copy Install Path, Open Releases Page. Disabled rather than hidden, except rows removed from the registry (four entries).
+- "Updated by Manager" and "Released" are stored per app **and version** in the state file (`installDates`, `publishDates`, key `appId|version`), so a hand-update never shows a stale date; the first line then reads "Not installed by Manager". `Release` gained `publishedAt` (GitHub `published_at`). `DiskInstaller.onInstalled` records installs/updates, including auto-updates. Publish dates are recorded on every release fetch, so they fill in after the first refresh. Fallbacks: "File date: …" then "Released: unknown".
+- `ManagerState` now decodes tolerantly, so older state files keep loading.
+- Menu enabled-state is derived from `enabledButtons`, so menu and buttons cannot disagree (tested).
+- The row needed `contentShape` for right-click to hit the spacer area; menu items must not carry an accessibility label that differs from their title (UI tests find them by title).
+- **Known failing UI test**: `test_REQ_WIN_9_REQ_WIN_11_loginLaunchHasNoWindowButAMenuBarItem` now fails (the main window appears on a login-style launch). It fails identically with this change stashed, so it is not caused by it; it passed in the previous run. Not yet diagnosed.
+- Suite: 13 of 14 UI tests and all unit tests pass.
+
 ## Not done
 - Production adapters written: `URLSessionTransport`, `KeychainTokenProvider`, `BundledRemoteRegistryProvider` (unit-tested through fakes), `URLSessionDownloader`, `FileManagerTrasher`, `WorkspaceLauncher`, `SystemAppLookup` (LaunchServices + `mdfind`), `UserNotificationNotifier`, `WorkspaceQuitObserver`, `SMAppServiceLoginItem`. The system-facing ones are not unit-tested (REQ-TST-3 keeps tests off the real network/Trash/login items); they need the manual checks below.
 - UI built (step 2): `App/AppModel.swift` is the composition root (the only place concrete adapters are named; `ArchitectureTests` bans them from `UI/`). `UI/MainView.swift` (rows follow `ApplicationLine.svg`: two button columns, fixed slots so rows stay aligned), `UI/SettingsView.swift` (+ menu bar content), `ArtCraftAppManagerApp.swift` (`Window` + `Settings` + `MenuBarExtra`, quit-on-last-window per `AppLifecyclePolicy`).

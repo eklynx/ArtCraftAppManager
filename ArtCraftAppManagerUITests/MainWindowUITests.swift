@@ -69,6 +69,22 @@ final class MainWindowUITests: XCTestCase {
     }
 
     @MainActor
+    func test_REQ_WIN_22_rowContextMenuListsEveryAction() {
+        let app = launch(arguments: ["-uitest-installed-gridcraft"])
+        let row = app.descendants(matching: .any)["appRow.gridcraft"]
+        XCTAssertTrue(row.waitForExistence(timeout: 5))
+        row.rightClick()
+        for title in ["Run", "Update", "Open Location", "Uninstall", "Cancel", "Copy Install Path", "Open Releases Page"] {
+            XCTAssertTrue(app.menuItems[title].waitForExistence(timeout: 3), "missing menu entry \(title)")
+        }
+        XCTAssertTrue(app.menuItems["Run"].isEnabled)
+        XCTAssertFalse(app.menuItems["Update"].isEnabled)
+        XCTAssertTrue(app.menuItems["Not installed by Manager"].exists, "REQ-WIN-23 first info line")
+        XCTAssertFalse(app.menuItems["Not installed by Manager"].isEnabled)
+        app.typeKey(.escape, modifierFlags: [])
+    }
+
+    @MainActor
     func test_REQ_SET_13_settingsListShowsEveryApp() {
         let app = launch()
         app.typeKey(",", modifierFlags: .command)

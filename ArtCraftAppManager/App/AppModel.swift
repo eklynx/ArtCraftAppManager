@@ -14,6 +14,9 @@ final class AppModel {
         var available: Release?
         var isRunning = false
         var inRegistry = true
+        var installedByManagerAt: Date?
+        var releasedAt: Date?
+        var fileDate: Date?
     }
 
     // MARK: Observable state
@@ -145,6 +148,9 @@ final class AppModel {
                 switch try await fetcher.latestRelease(for: app, etag: etag) {
                 case .release(let release, let newTag):
                     latest[app.id] = release
+                    if let published = release.publishedAt {
+                        saved.publishDates[ManagerState.stampKey(appId: app.id, version: release.version.description)] = published
+                    }
                     saved.etags[app.id] = newTag
                 case .notModified:
                     break
@@ -174,15 +180,23 @@ final class AppModel {
 
     func rebuildRows() {
         let locator = makeLocator()
-        let recorded = state.load().recordedPaths
+        let savedState = state.load()
+        let recorded = savedState.recordedPaths
         let window = MainWindowModel()
         window.setRows(registry: registry, enabled: enabledIds, removedFromRegistry: [], order: appOrder)
         var built: [Row] = window.rowIds.compactMap { id in
             guard let app = registry.apps.first(where: { $0.id == id }) else { return nil }
             let resolved = InstallResolver.resolve(copies: locator.installedCopies(of: app),
                                                    recordedPath: recorded[id].map { URL(fileURLWithPath: $0) })
-            return Row(id: id, name: app.displayName, app: app, installed: resolved?.shown, available: latest[id],
-                       isRunning: resolved.map { locator.isRunning($0.shown) } ?? false)
+            var row = Row(id: id, name: app.displayName, app: app, installed: resolved?.shown, available: latest[id],
+                          isRunning: resolved.map { locator.isRunning($0.shown) } ?? false)
+            if let shown = resolved?.shown {
+                let key = ManagerState.stampKey(appId: id, version: shown.version.description)
+                row.installedByManagerAt = savedState.installDates[key]
+                row.releasedAt = savedState.publishDates[key]
+                row.fileDate = (try? shown.url.resourceValues(forKeys: [.contentModificationDateKey]))?.contentModificationDate
+            }
+            return row
         }
         // Installed apps that left the registry stay listed (REQ-REG-4).
         for (id, path) in recorded where !registry.apps.contains(where: { $0.id == id }) {
@@ -209,7 +223,20 @@ final class AppModel {
 
     func rowModel(for row: Row) -> AppRowModel {
         AppRowModel(name: row.name, installed: row.installed, available: row.available, isRunning: row.isRunning,
-                    progress: progress[row.id], inRegistry: row.inRegistry)
+                    progress: progress[row.id], inRegistry: row.inRegistry,
+                    installedByManagerAt: row.installedByManagerAt, releasedAt: row.releasedAt, fileDate: row.fileDate)
+    }
+
+    /// Context-menu actions that need more than the row's own state (REQ-WIN-22).
+    func copyInstallPath(_ row: Row) {
+        guard let path = row.installed?.url.path else { return }
+        NSPasteboard.general.clearContents()
+        NSPasteboard.general.setString(path, forType: .string)
+    }
+
+    func openReleasesPage(_ row: Row) {
+        guard let url = (row.app ?? registry.apps.first { $0.id == row.id })?.releasesUrl else { return }
+        NSWorkspace.shared.open(url)
     }
 
     var menuBarModel: MenuBarModel {
@@ -353,12 +380,20 @@ final class AppModel {
 
     private func makeInstaller() -> DiskInstaller {
         let transport = self.transport
+        let state = self.state
         return DiskInstaller(downloader: URLSessionDownloader(), mounter: HdiutilMounter(), trasher: FileManagerTrasher(),
                              locator: makeLocator(), downloadFolder: downloadLocation,
                              checksumText: { release in
                                  guard let url = release.checksumURL else { return nil }
                                  guard let (data, response) = try? await transport.send(URLRequest(url: url)) else { throw ManagerError.offline }
                                  return response.statusCode == 200 ? String(decoding: data, as: UTF8.self) : nil
+                             },
+                             onInstalled: { installed, release in
+                                 var saved = state.load()
+                                 let key = ManagerState.stampKey(appId: installed.appId, version: installed.version.description)
+                                 saved.installDates[key] = Date()
+                                 if let published = release.publishedAt { saved.publishDates[key] = published }
+                                 try? state.save(saved)
                              })
     }
 

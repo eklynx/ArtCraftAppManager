@@ -82,6 +82,8 @@ struct DiskInstaller: InstallationManaging {
     var downloadFolder: URL
     /// Returns checksum list text for a release, if it has one.
     var checksumText: (Release) async throws -> String?
+    /// Called after a successful install or update with the new copy (REQ-WIN-23).
+    var onInstalled: ((InstalledApp, Release) -> Void)? = nil
 
     private var fm: FileManager { .default }
 
@@ -99,7 +101,9 @@ struct DiskInstaller: InstallationManaging {
         try copy(source, to: target, app: app, folder: folder)
         try? fm.removeItem(at: dmg)
         progress(1.0)
-        return try installedApp(at: target, app: app)
+        let result = try installedApp(at: target, app: app)
+        onInstalled?(result, release)
+        return result
     }
 
     func update(_ installed: InstalledApp, app: RegistryApp, to release: Release, progress: @escaping (Double) -> Void) async throws -> InstalledApp {
@@ -142,7 +146,9 @@ struct DiskInstaller: InstallationManaging {
         }
         try? fm.removeItem(at: dmg)
         progress(1.0)
-        return try installedApp(at: installed.url, app: app)
+        let result = try installedApp(at: installed.url, app: app)
+        onInstalled?(result, release)
+        return result
     }
 
     func uninstall(_ installed: InstalledApp, app: RegistryApp) async throws {

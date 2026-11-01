@@ -18,5 +18,6 @@ Setup once: build and run the Manager from Xcode (or open the built `.app`). Hav
 | 10 | Remote registry | Make sure the repository is public (or store a GitHub token: Option-click Settings to reveal the hidden GitHub field), add an App entry to `docs/registry/apps.json` on `main`, relaunch. | The new App appears without a new Manager build. | REG-2, REG-3 |
 
 | 11 | App order | Open Settings, drag a row in the Apps list to a new position (use the handle at the right of the row). | The row moves; Reset Order becomes enabled; the main window lists the checked apps in the new order; Reset Order restores the original order. (Right-click → Move Up/Move Down should also work.) | SET-10, SET-11, SET-12 |
+| 12 | Row context menu | Right-click an installed App's row. | A menu shows two greyed lines ("Updated by Manager", "Released"/"File date") then Run, Update, Open Location, Uninstall, Cancel, Copy Install Path, Open Releases Page; unavailable entries are greyed and enabled ones match the row's buttons. Copy Install Path puts the path on the clipboard; Open Releases Page opens GitHub. | WIN-22, WIN-23, WIN-24 |
 
 Known limitation: login-launch detection uses the login-item Apple event and is best-effort; if the window appears at login, report it.

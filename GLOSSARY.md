@@ -25,3 +25,7 @@
 **Enabled App**: An App ticked in Settings and therefore shown in the main window.
 
 **Launch at login**: Setting that starts the Manager at login without showing its window and adds a menu bar item.
+
+**Updated by Manager**: The date the Manager last installed or updated a given version of an App.
+
+**Release date**: The date a Release was published on GitHub.

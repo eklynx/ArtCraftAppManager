@@ -18,7 +18,7 @@ ArtCraftAppManager/
 - **REQ-ARC-1** Cross-module calls use the protocols above; concrete types are wired in one composition root (`ArtCraftAppManagerApp`).
 - **REQ-ARC-2** Each protocol has a doc comment with **Happy path** and **Errors** sections listing `ManagerError` codes ([07](07-errors-and-status.md)).
 - **REQ-ARC-3** Every protocol has an in-memory fake in the test target; no unit test touches the network, real volumes, or the real Trash.
-- **REQ-ARC-4** The state file `~/Library/Application Support/ArtCraftAppManager/state.json` holds recorded install paths, last-seen versions, notified versions (REQ-NOT-3), ETags and the cached registry. It is disposable: deleting it MUST NOT lose user settings (they are in `UserDefaults`) and detection rebuilds the rest.
+- **REQ-ARC-4** The state file `~/Library/Application Support/ArtCraftAppManager/state.json` holds recorded install paths, last-seen versions, notified versions (REQ-NOT-3), per-version install dates and release publish dates (REQ-WIN-23), ETags and the cached registry. It is disposable: deleting it MUST NOT lose user settings (they are in `UserDefaults`) and detection rebuilds the rest.
 - **REQ-ARC-5** **App Sandbox is disabled** ([ADR 0001](../adr/0001-sandbox-and-install-strategy.md)): the Manager must write to arbitrary volumes, mount DMGs and replace apps. The target is signed with Developer ID or ad-hoc; Hardened Runtime on.
 - **REQ-ARC-6** Long operations are `async` and cancellable; UI state changes occur on the main actor.
 - **REQ-ARC-8** Every file that declares a namespace protocol starts with a `SOURCE OF TRUTH` header comment naming the namespace, its types and the governing spec, so agents treat it as the reference for that namespace.

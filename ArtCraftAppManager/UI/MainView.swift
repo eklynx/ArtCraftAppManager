@@ -100,11 +100,52 @@ struct AppRowView: View {
         }
         .padding(.horizontal, 14).padding(.vertical, 10)
         .background(RoundedRectangle(cornerRadius: 12).stroke(.primary.opacity(0.4), lineWidth: 1))
+        .contentShape(RoundedRectangle(cornerRadius: 12))  // spacers are otherwise not hit-testable
+        .contextMenu { contextMenu }
         .alert("Uninstall \(row.name)?", isPresented: $confirmUninstall) {
             Button("Uninstall", role: .destructive) { model.uninstall(row) }
             Button("Cancel", role: .cancel) {}
         } message: {
             Text("\(row.name) is moved to the Trash. Your data and preferences are kept.")
+        }
+    }
+
+    /// REQ-WIN-22…24: info lines, divider, then every action (enabled state comes from `AppRowModel`).
+    @ViewBuilder
+    private var contextMenu: some View {
+        ForEach(vm.infoLines, id: \.self) { line in
+            Button(line) {}.disabled(true)
+        }
+        Divider()
+        ForEach(vm.menuActions, id: \.self) { action in
+            Button(Self.title(of: action)) { perform(action) }
+                .disabled(!vm.enabledMenuActions.contains(action))
+        }
+    }
+
+    private static func title(of action: RowAction) -> String {
+        switch action {
+        case .install: "Install"
+        case .run: "Run"
+        case .update: "Update"
+        case .openLocation: "Open Location"
+        case .uninstall: "Uninstall"
+        case .cancel: "Cancel"
+        case .copyPath: "Copy Install Path"
+        case .openReleasesPage: "Open Releases Page"
+        }
+    }
+
+    private func perform(_ action: RowAction) {
+        switch action {
+        case .install: chooseFolderAndInstall()
+        case .run: model.run(row)
+        case .update: model.update(row)
+        case .openLocation: model.openLocation(row)
+        case .uninstall: confirmUninstall = true
+        case .cancel: model.cancel(row)
+        case .copyPath: model.copyInstallPath(row)
+        case .openReleasesPage: model.openReleasesPage(row)
         }
     }
 
