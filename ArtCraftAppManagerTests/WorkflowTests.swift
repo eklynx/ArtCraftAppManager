@@ -49,7 +49,7 @@ struct WorkflowTests {
         #expect(!text.contains("\n  push:"))
     }
 
-    @Test("REQ-TST-8 Nightly Build is scheduled, fully signed, published as a pre-release and pruned after 7 days")
+    @Test("REQ-TST-8 Nightly Build is scheduled, fully signed, published as a pre-release and skipped when unchanged and keeps the last 7")
     func nightlyWorkflow() throws {
         let text = try workflow("nightly.yml")
         #expect(text.contains("schedule:"))
@@ -59,7 +59,9 @@ struct WorkflowTests {
         #expect(text.contains("--prerelease"))
         #expect(text.contains("--latest=false"))
         #expect(text.contains("startswith(\"nightly-\")"))
-        #expect(text.contains("604800"))
+        #expect(text.contains(".[7:]"))
+        #expect(text.contains("targetCommitish"))
+        #expect(text.contains("force:"))
         #expect(text.contains("needs: unit-tests"))
         #expect(!text.contains("secrets.DEVELOPER_ID"))
     }

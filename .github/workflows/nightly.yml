@@ -1,12 +1,17 @@
 name: Nightly Build
 
 # A fully signed, notarized and stapled build of main, version X.Y.Z-<timestamp>.<hash>, published as a GitHub
-# pre-release tagged nightly-<version>. Not a Manager release (never "latest", no vX.Y.Z tag). Pre-releases older
-# than 7 days are deleted along with their tags.
+# pre-release tagged nightly-<version>. Not a Manager release (never "latest", no vX.Y.Z tag). Skipped when main is
+# unchanged since the latest nightly; only the last 7 nightlies are kept (older ones are deleted with their tags).
 on:
   schedule:
     - cron: '0 3 * * *' # 03:00 UTC
   workflow_dispatch:
+    inputs:
+      force:
+        description: Build even if main has not changed since the latest nightly
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -17,11 +22,18 @@ jobs:
     outputs:
       build: ${{ steps.check.outputs.build }}
     steps:
-      - uses: actions/checkout@v4
-      # Scheduled runs skip nights with no new commit on main; manual runs always build.
+      # Skip when the latest nightly was built from this same commit (a failed earlier attempt left no release, so it retries).
       - id: check
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          if [ '${{ github.event_name }}' = schedule ] && [ -z "$(git log --since='25 hours ago' --format=%H -1)" ]; then
+          last="$(gh release list --repo "$GITHUB_REPOSITORY" --limit 200 --json tagName --jq '[.[] | select(.tagName | startswith("nightly-"))][0].tagName // ""')"
+          built=""
+          if [ -n "$last" ]; then
+            built="$(gh release view "$last" --repo "$GITHUB_REPOSITORY" --json targetCommitish --jq .targetCommitish)"
+          fi
+          if [ "$built" = "$GITHUB_SHA" ] && [ '${{ inputs.force }}' != true ]; then
+            echo "main is unchanged since $last; skipping"
             echo "build=false" >> "$GITHUB_OUTPUT"
           else
             echo "build=true" >> "$GITHUB_OUTPUT"
@@ -60,10 +72,10 @@ jobs:
             --title 'Nightly ${{ needs.package.outputs.version }}' \
             --notes "Nightly build of main at $GITHUB_SHA. Not a release." \
             --prerelease --latest=false
-      - name: Delete nightlies older than 7 days
+      - name: Keep only the last 7 nightlies
         run: |
           gh release list --repo "$GITHUB_REPOSITORY" --limit 200 --json tagName,createdAt \
-            --jq '.[] | select(.tagName | startswith("nightly-")) | select((.createdAt | fromdateiso8601) < (now - 604800)) | .tagName' |
+            --jq '[.[] | select(.tagName | startswith("nightly-"))] | sort_by(.createdAt) | reverse | .[7:][].tagName' |
           while read -r tag; do
             gh release delete "$tag" --repo "$GITHUB_REPOSITORY" --cleanup-tag --yes
           done

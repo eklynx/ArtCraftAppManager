@@ -7,7 +7,7 @@ Workflows live in `.github/workflows/`. Requirements: REQ-TST-6 to REQ-TST-8 in 
 | Run Unit Tests (`unit-tests.yml`) | push to `main`, pull requests, manual, called by Release | `xcodebuild test` for `ArtCraftAppManagerTests` only. On `main` pushes it also uploads an **unsigned** zipped app named with the dev version. |
 | Run UI Tests (`ui-tests.yml`) | manual only | `xcodebuild test` for `ArtCraftAppManagerUITests` only. Needs a logged-in GUI session, so it defaults to a self-hosted Mac. |
 | Release (`release.yml`) | manual only | Runs the unit tests, then signs with Developer ID, notarizes, staples, packages a DMG and creates a GitHub release. |
-| Nightly Build (`nightly.yml`) | 03:00 UTC daily, manual | Skips scheduled nights with no commit in the last 25 hours. Runs the unit tests, then the same full signing, notarization and stapling as Release, and publishes a GitHub **pre-release** tagged `nightly-<version>`. Pre-releases older than 7 days are deleted with their tags. |
+| Nightly Build (`nightly.yml`) | 03:00 UTC daily, manual | Skips the build when `main` is unchanged since the latest nightly (manual runs have a `force` input). Runs the unit tests, then the same full signing, notarization and stapling as Release, and publishes a GitHub **pre-release** tagged `nightly-<version>`. Only the last 7 nightly pre-releases are kept; older ones are deleted with their tags. |
 | Package (`package.yml`) | called by the two above | Shared sign, notarize, staple and DMG steps; the only workflow that reads the signing secrets. |
 
 ## Runner
@@ -35,7 +35,7 @@ Repository secrets:
 4. Report back anything that failed, with the failing step's log.
 
 ## Nightly builds
-Download the DMG from the pre-release on the Releases page. Nightlies are never marked latest and carry no `vX.Y.Z` tag, so they don't affect version numbering. Only the last 7 days are kept; to keep a build, run **Release** instead.
+Download the DMG from the pre-release on the Releases page. Nightlies are never marked latest and carry no `vX.Y.Z` tag, so they don't affect version numbering. Only the last 7 nightlies are kept; to keep a build, run **Release** instead.
 
 ## Local checks
 - `scripts/tests/compute-version-tests.sh` tests the version rules.

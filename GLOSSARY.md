@@ -34,4 +34,4 @@
 
 **Manager release**: A tagged, signed and notarized build of the Manager, published as a disk image on the Manager's own GitHub releases. _Avoid_: Release (that term is for Apps).
 
-**Nightly build**: A signed and notarized build of the Manager's `main` branch, published as a GitHub pre-release and deleted after a week. Not a Manager release.
+**Nightly build**: A signed and notarized build of the Manager's `main` branch, published as a GitHub pre-release and kept only for the latest seven. Not a Manager release.
