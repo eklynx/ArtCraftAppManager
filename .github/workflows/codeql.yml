@@ -1,8 +1,8 @@
 name: CodeQL
 
 # Replaces GitHub's "default setup" (disable it under Settings > Code security, or it rejects these uploads).
-# Default setup autobuilt Swift under CodeQL's build tracer, which crashed (exit 139) on the hosted macOS runner.
-# Swift is analyzed from source (build-mode none), so no Xcode 27 build is needed.
+# Default setup autobuilt Swift on macos-latest, where CodeQL's build tracer crashed (exit 139). Swift does not support
+# build-mode none, so it is built manually with xcodebuild on the same runner the unit tests use (Xcode 27).
 on:
   push:
     branches: [main]
@@ -18,7 +18,7 @@ permissions:
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
-    runs-on: ${{ matrix.runner }}
+    runs-on: ${{ matrix.language == 'swift' && fromJSON(vars.RUNNER_LABELS || '["xcode-27"]') || matrix.runner }}
     permissions:
       contents: read
       security-events: write
@@ -29,15 +29,27 @@ jobs:
         include:
           - language: actions
             runner: ubuntu-latest
+            build-mode: ${{ matrix.build-mode }}
           - language: swift
-            runner: macos-latest
+            runner: xcode-27
+            build-mode: manual
     steps:
       - uses: actions/checkout@v4
 
       - uses: github/codeql-action/init@v4
         with:
           languages: ${{ matrix.language }}
-          build-mode: none
+          build-mode: ${{ matrix.build-mode }}
+
+      - name: Build (Swift)
+        if: ${{ matrix.language == 'swift' }}
+        run: |
+          xcodebuild clean build \
+            -project ArtCraftAppManager.xcodeproj \
+            -scheme ArtCraftAppManager \
+            -destination 'platform=macOS' \
+            -derivedDataPath "$RUNNER_TEMP/derived" \
+            CODE_SIGNING_ALLOWED=NO
 
       - uses: github/codeql-action/analyze@v4
         with:
