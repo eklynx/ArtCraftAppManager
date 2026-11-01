@@ -15,7 +15,7 @@
       "checksumAsset": null,
       "bundleId": "ai.artcraft.app",
       "appBundleName": "ArtCraft.app",
-      "iconUrl": null,
+      "iconUrl": "https://raw.githubusercontent.com/storytold/artcraft/HEAD/crates/desktop/artcraft/icons/128x128%402x.png",
       "enabledByDefault": true
     },
     {
@@ -29,7 +29,7 @@
       "checksumAsset": "SHA256SUMS.txt",
       "bundleId": "ai.storyteller.vectorcraft",
       "appBundleName": "VectorCraft.app",
-      "iconUrl": null,
+      "iconUrl": "https://raw.githubusercontent.com/storytold/vectorcraft/HEAD/assets/app-icon/hicolor/256x256/apps/ai.storyteller.vectorcraft.png",
       "enabledByDefault": true
     },
     {
@@ -43,7 +43,7 @@
       "checksumAsset": "SHA256SUMS.txt",
       "bundleId": "ai.storyteller.photocraft",
       "appBundleName": "PhotoCraft.app",
-      "iconUrl": null,
+      "iconUrl": "https://raw.githubusercontent.com/storytold/photocraft/HEAD/assets/app-icon/hicolor/256x256/apps/ai.storyteller.photocraft.png",
       "enabledByDefault": true
     },
     {
@@ -57,7 +57,7 @@
       "checksumAsset": "SHA256SUMS.txt",
       "bundleId": "ai.storyteller.figcraft",
       "appBundleName": "FigCraft.app",
-      "iconUrl": null,
+      "iconUrl": "https://raw.githubusercontent.com/storytold/figcraft/HEAD/assets/app-icon/hicolor/256x256/apps/ai.storyteller.figcraft.png",
       "enabledByDefault": true
     },
     {
@@ -71,7 +71,7 @@
       "checksumAsset": "SHA256SUMS.txt",
       "bundleId": "ai.storyteller.soundcraft",
       "appBundleName": "SoundCraft.app",
-      "iconUrl": null,
+      "iconUrl": "https://raw.githubusercontent.com/storytold/soundcraft/HEAD/assets/app-icon/hicolor/256x256/apps/ai.storyteller.soundcraft.png",
       "enabledByDefault": true
     },
     {
@@ -85,7 +85,7 @@
       "checksumAsset": "SHA256SUMS.txt",
       "bundleId": "ai.storyteller.cadcraft",
       "appBundleName": "CADCraft.app",
-      "iconUrl": null,
+      "iconUrl": "https://raw.githubusercontent.com/storytold/cadcraft/HEAD/assets/app-icon/hicolor/256x256/apps/ai.storyteller.cadcraft.png",
       "enabledByDefault": true
     },
     {
@@ -99,7 +99,7 @@
       "checksumAsset": "SHA256SUMS.txt",
       "bundleId": "ai.storyteller.gridcraft",
       "appBundleName": "GridCraft.app",
-      "iconUrl": null,
+      "iconUrl": "https://raw.githubusercontent.com/storytold/gridcraft/HEAD/assets/app-icon/hicolor/256x256/apps/ai.storyteller.gridcraft.png",
       "enabledByDefault": true
     },
     {
@@ -113,7 +113,7 @@
       "checksumAsset": "SHA256SUMS.txt",
       "bundleId": "ai.storyteller.deckcraft",
       "appBundleName": "DeckCraft.app",
-      "iconUrl": null,
+      "iconUrl": "https://raw.githubusercontent.com/storytold/deckcraft/HEAD/assets/app-icon/hicolor/256x256/apps/ai.storyteller.deckcraft.png",
       "enabledByDefault": true
     },
     {
@@ -127,7 +127,7 @@
       "checksumAsset": "SHA256SUMS.txt",
       "bundleId": "ai.storyteller.wordcraft",
       "appBundleName": "WordCraft.app",
-      "iconUrl": null,
+      "iconUrl": "https://raw.githubusercontent.com/storytold/wordcraft/HEAD/assets/app-icon/hicolor/256x256/apps/ai.storyteller.wordcraft.png",
       "enabledByDefault": true
     },
     {
@@ -141,7 +141,7 @@
       "checksumAsset": "SHA256SUMS.txt",
       "bundleId": "ai.storyteller.effectcraft",
       "appBundleName": "EffectCraft.app",
-      "iconUrl": null,
+      "iconUrl": "https://raw.githubusercontent.com/storytold/effectcraft/HEAD/assets/app-icon/hicolor/256x256/apps/ai.storyteller.effectcraft.png",
       "enabledByDefault": true
     },
     {
@@ -155,7 +155,7 @@
       "checksumAsset": "SHA256SUMS.txt",
       "bundleId": "ai.storyteller.pdfcraft",
       "appBundleName": "PdfCraft.app",
-      "iconUrl": null,
+      "iconUrl": "https://raw.githubusercontent.com/storytold/pdfcraft/HEAD/assets/app-icon/hicolor/256x256/apps/ai.storyteller.pdfcraft.png",
       "enabledByDefault": true
     },
     {
@@ -169,7 +169,7 @@
       "checksumAsset": "SHA256SUMS.txt",
       "bundleId": "ai.storyteller.designcraft",
       "appBundleName": "DesignCraft.app",
-      "iconUrl": null,
+      "iconUrl": "https://raw.githubusercontent.com/storytold/designcraft/HEAD/assets/app-icon/hicolor/256x256/apps/ai.storyteller.designcraft.png",
       "enabledByDefault": true
     },
     {
@@ -183,7 +183,7 @@
       "checksumAsset": "SHA256SUMS.txt",
       "bundleId": "ai.storyteller.filmcraft",
       "appBundleName": "FilmCraft.app",
-      "iconUrl": null,
+      "iconUrl": "https://raw.githubusercontent.com/storytold/filmcraft/HEAD/assets/app-icon/hicolor/256x256/apps/ai.storyteller.filmcraft.png",
       "enabledByDefault": true
     },
     {
@@ -197,7 +197,7 @@
       "checksumAsset": "SHA256SUMS.txt",
       "bundleId": "ai.storyteller.lightcraft",
       "appBundleName": "LightCraft.app",
-      "iconUrl": null,
+      "iconUrl": "https://raw.githubusercontent.com/storytold/lightcraft/HEAD/assets/app-icon/hicolor/256x256/apps/ai.storyteller.lightcraft.png",
       "enabledByDefault": true
     }
   ]

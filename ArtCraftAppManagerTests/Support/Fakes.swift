@@ -155,3 +155,13 @@ final class InMemorySettings: SettingsStoring {
     var launchAtLogin = false
     var appOrder: [String]?
 }
+
+/// In-memory icon source: returns canned data per App id (REQ-ARC-3, REQ-WIN-25).
+final class FakeIconProvider: AppIconProviding {
+    var icons: [String: Data] = [:]
+    private(set) var requested: [String] = []
+    func icon(for app: RegistryApp) async -> Data? {
+        requested.append(app.id)
+        return icons[app.id]
+    }
+}

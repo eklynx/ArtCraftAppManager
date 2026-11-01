@@ -40,3 +40,4 @@ Naming differs: ArtCraft uses tag `artcraft-vX.Y.Z` and asset `ArtCraft_X.Y.Z_un
 
 ## Error cases
 Network failure → `offline`; malformed JSON/schema → fall back (REQ-REG-3); no matching asset → `releaseUnusable`; rate limit → `rateLimited`.
+- **REQ-REG-13** Every shipped registry entry has an `iconUrl`: an `https://raw.githubusercontent.com/…` URL of a PNG in the App's public repository (REQ-WIN-25). Remote registries may still set it to `null`.

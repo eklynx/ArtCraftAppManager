@@ -22,6 +22,8 @@ final class AppModel {
     // MARK: Observable state
     private(set) var registry: AppRegistry
     private(set) var rows: [Row] = []
+    /// Downloaded icons for Apps that are not installed (REQ-WIN-25).
+    private(set) var cachedIcons: [String: NSImage] = [:]
     private(set) var progress: [String: Double] = [:]
     private(set) var status = StatusLine()
     private(set) var isChecking = false
@@ -59,6 +61,7 @@ final class AppModel {
     private var forcedOffline = false
     /// Test launches never touch the network.
     private let networkDisabled: Bool
+    private let iconProvider: AppIconProviding
 
     init(arguments: [String] = ProcessInfo.processInfo.arguments) {
         // UI-test launches use an isolated defaults suite and state folder so they never touch real data.
@@ -81,6 +84,10 @@ final class AppModel {
         store = settings
         state = JSONStateStore(url: supportDir.appendingPathComponent("state.json"))
         transport = URLSessionTransport()
+        let cacheRoot = isUITest || isTestHost
+            ? FileManager.default.temporaryDirectory.appendingPathComponent("acam-uitest-cache")
+            : FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0].appendingPathComponent("ArtCraftAppManager")
+        iconProvider = GitHubIconProvider(transport: transport, cacheFolder: cacheRoot.appendingPathComponent("icons"))
         let bundled = (try? BundledRemoteRegistryProvider.loadBundled())
             ?? AppRegistry(schemaVersion: AppRegistry.supportedSchemaVersion, updated: "", owner: "", apps: [])
         registry = bundled
@@ -130,6 +137,27 @@ final class AppModel {
         }
     }
 
+    // MARK: Icons (REQ-WIN-25)
+
+    /// Loads (cached or downloaded) icons for every registry App that is not installed. Silent on failure.
+    func loadIcons() async {
+        if networkDisabled { return }
+        let installedIds = Set(rows.filter { $0.installed != nil }.map(\.id))
+        for app in registry.apps where !installedIds.contains(app.id) && cachedIcons[app.id] == nil {
+            if let data = await iconProvider.icon(for: app), let image = NSImage(data: data) { cachedIcons[app.id] = image }
+        }
+    }
+
+    /// The icon to show for an App: installed copy's icon, else the cached download, else nil (placeholder).
+    func iconImage(forAppId id: String) -> NSImage? {
+        let installedURL = rows.first { $0.id == id }?.installed?.url
+        switch IconChoice.source(installed: installedURL != nil, cached: cachedIcons[id] != nil) {
+        case .installed: return NSWorkspace.shared.icon(forFile: installedURL!.path)
+        case .cached: return cachedIcons[id]
+        case .placeholder: return nil
+        }
+    }
+
     // MARK: Update checks (REQ-REG-12)
 
     func refresh() async {
@@ -164,6 +192,7 @@ final class AppModel {
         rebuildRows()
         if let failure { status.show(failure) } else { status.operationSucceeded(); noteDuplicates() }
         await applyAutoUpdates()
+        await loadIcons()
     }
 
     private func applyAutoUpdates() async {

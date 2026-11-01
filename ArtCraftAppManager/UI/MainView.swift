@@ -151,8 +151,8 @@ struct AppRowView: View {
 
     private var icon: some View {
         Group {
-            if let url = row.installed?.url {
-                Image(nsImage: NSWorkspace.shared.icon(forFile: url.path)).resizable()
+            if let image = model.iconImage(forAppId: row.id) {
+                Image(nsImage: image).resizable().scaledToFit()
             } else {
                 Image(systemName: "app.dashed").resizable().scaledToFit().padding(14).foregroundStyle(.secondary)
             }

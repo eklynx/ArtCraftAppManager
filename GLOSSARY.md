@@ -29,3 +29,5 @@
 **Updated by Manager**: The date the Manager last installed or updated a given version of an App.
 
 **Release date**: The date a Release was published on GitHub.
+
+**Cached icon**: A copy of an App's icon downloaded from GitHub and kept locally, shown while the App is not installed.

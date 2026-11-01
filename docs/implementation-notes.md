@@ -67,6 +67,14 @@ Running log of decisions, changes and tradeoffs beyond the README. Dated 2026-10
 - **Known failing UI test**: `test_REQ_WIN_9_REQ_WIN_11_loginLaunchHasNoWindowButAMenuBarItem` now fails (the main window appears on a login-style launch). It fails identically with this change stashed, so it is not caused by it; it passed in the previous run. Not yet diagnosed.
 - Suite: 13 of 14 UI tests and all unit tests pass.
 
+## Icons from GitHub (REQ-WIN-25, REQ-REG-13)
+- `iconUrl` is now set for all 14 apps (raw.githubusercontent.com PNG; Craft apps: `assets/app-icon/hicolor/256x256/apps/ai.storyteller.<id>.png`, ArtCraft: `crates/desktop/artcraft/icons/128x128@2x.png`). All 14 were checked live: HTTP 200, image/png.
+- New `Icons/` namespace: `AppIconProviding`, `GitHubIconProvider` (disk cache in `~/Library/Caches/ArtCraftAppManager/icons`, ETag revalidation after 24 h, 2 MB cap, must decode as an image, stale copy kept on failure), `IconChoice` (installed → cached → placeholder). `AppModel.loadIcons()` runs after each refresh; test launches skip it.
+- **Deviation from the plan**: no GitHub token is sent for icon downloads. The repos are public, and a stale or wrong token would turn a public 200 into a 401.
+- The Settings list now shows icons (REQ-SET-3 already said so; it was missing). Rows grew, so the list height is 34 pt per row.
+- **Settings window size**: the `idealHeight` frame was not what sized the window (it opened 608 pt tall after the icons were added, clipping the last app). The Settings scene now uses `.defaultSize(width: 520, height: 940)`. This also explains the earlier "860 pt" fix being fragile.
+- The login-launch UI test that failed in the previous step passed in the latest runs, so it looks flaky rather than broken. Not diagnosed.
+
 ## Not done
 - Production adapters written: `URLSessionTransport`, `KeychainTokenProvider`, `BundledRemoteRegistryProvider` (unit-tested through fakes), `URLSessionDownloader`, `FileManagerTrasher`, `WorkspaceLauncher`, `SystemAppLookup` (LaunchServices + `mdfind`), `UserNotificationNotifier`, `WorkspaceQuitObserver`, `SMAppServiceLoginItem`. The system-facing ones are not unit-tested (REQ-TST-3 keeps tests off the real network/Trash/login items); they need the manual checks below.
 - UI built (step 2): `App/AppModel.swift` is the composition root (the only place concrete adapters are named; `ArchitectureTests` bans them from `UI/`). `UI/MainView.swift` (rows follow `ApplicationLine.svg`: two button columns, fixed slots so rows stay aligned), `UI/SettingsView.swift` (+ menu bar content), `ArtCraftAppManagerApp.swift` (`Window` + `Settings` + `MenuBarExtra`, quit-on-last-window per `AppLifecyclePolicy`).

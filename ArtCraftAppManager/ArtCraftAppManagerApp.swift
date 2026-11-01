@@ -15,6 +15,7 @@ struct ArtCraftAppManagerApp: App {
         Settings {
             SettingsView().environment(model)
         }
+        .defaultSize(width: 520, height: 940)  // open tall enough to show every app (REQ-SET-13)
 
         MenuBarExtra(isInserted: Binding(get: { AppLifecyclePolicy.hasMenuBarItem(launchAtLogin: model.launchAtLogin) }, set: { _ in })) {
             MenuBarContent().environment(model)

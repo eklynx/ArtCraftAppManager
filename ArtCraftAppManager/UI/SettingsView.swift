@@ -21,6 +21,15 @@ struct SettingsView: View {
                 List {
                     ForEach(model.orderedApps) { app in
                         HStack {
+                            Group {
+                                if let image = model.iconImage(forAppId: app.id) {
+                                    Image(nsImage: image).resizable().scaledToFit()
+                                } else {
+                                    Image(systemName: "app.dashed").resizable().scaledToFit().padding(4).foregroundStyle(.secondary)
+                                }
+                            }
+                            .frame(width: 20, height: 20)
+                            .accessibilityHidden(true)
                             Toggle(isOn: Binding(get: { model.enabledIds.contains(app.id) }, set: { model.setEnabled(app.id, $0) })) {
                                 Text(app.displayName)
                             }
@@ -39,7 +48,7 @@ struct SettingsView: View {
                     .onMove { model.moveApps(from: $0, to: $1) }
                 }
                 .listStyle(.inset)
-                .frame(height: CGFloat(model.orderedApps.count) * 30 + 12)  // tall enough to show every app, no inner scrolling
+                .frame(height: CGFloat(model.orderedApps.count) * 34 + 12)  // tall enough to show every app, no inner scrolling
                 .accessibilityIdentifier("settings.apps.list")
                 HStack {
                     Text("Drag to reorder. This sets the order in the main window.").font(.caption).foregroundStyle(.secondary)
@@ -78,7 +87,7 @@ struct SettingsView: View {
             if Self.isSettingsWindow(note.object) { showsGitHub = false }
         }
         .frame(width: 520)
-        .frame(minHeight: 560, idealHeight: 860, maxHeight: .infinity)  // tall enough to open with every app visible; the form scrolls if the screen is smaller
+        .frame(minHeight: 560, idealHeight: 940, maxHeight: .infinity)  // tall enough to open with every app visible; the form scrolls if the screen is smaller
         .padding(.vertical, 8)
     }
 

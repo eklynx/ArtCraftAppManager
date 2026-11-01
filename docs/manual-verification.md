@@ -19,5 +19,6 @@ Setup once: build and run the Manager from Xcode (or open the built `.app`). Hav
 
 | 11 | App order | Open Settings, drag a row in the Apps list to a new position (use the handle at the right of the row). | The row moves; Reset Order becomes enabled; the main window lists the checked apps in the new order; Reset Order restores the original order. (Right-click → Move Up/Move Down should also work.) | SET-10, SET-11, SET-12 |
 | 12 | Row context menu | Right-click an installed App's row. | A menu shows two greyed lines ("Updated by Manager", "Released"/"File date") then Run, Update, Open Location, Uninstall, Cancel, Copy Install Path, Open Releases Page; unavailable entries are greyed and enabled ones match the row's buttons. Copy Install Path puts the path on the clipboard; Open Releases Page opens GitHub. | WIN-22, WIN-23, WIN-24 |
+| 13 | Downloaded icons | Uninstall (or pick) an App that is not installed and relaunch the Manager online; then go offline and relaunch. | The row and the Settings list show the App's real icon instead of the dashed placeholder; the icon still shows offline from the cache. | WIN-25 |
 
 Known limitation: login-launch detection uses the login-item Apple event and is best-effort; if the window appears at login, report it.
