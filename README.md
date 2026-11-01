@@ -1,5 +1,5 @@
 <h1>
-  <img src="ArtCraftAppManager/Assets.xcassets/AppIcon.appiconset/icon_256.png" alt="ArtCraft Application Manager icon" width="64" height="64" align="absmiddle">
+  <img src="ArtCraftAppManager/Assets.xcassets/AppIcon.appiconset/icon_256.png" alt="ArtCraft Application Manager icon" width="128" height="128" align="absmiddle">
   ArtCraft Application Manager
 </h1>
 ## Description
