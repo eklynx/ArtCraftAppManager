@@ -114,8 +114,10 @@ Running log of decisions, changes and tradeoffs beyond the README. Dated 2026-10
 
 ### Nightly build
 - `nightly.yml` (03:00 UTC + manual) builds a fully signed, notarized, stapled DMG with the dev version and publishes it as a GitHub **pre-release** (`--prerelease --latest=false`) tagged `nightly-<version>`. The signing steps moved out of `release.yml` into the reusable `package.yml`; Release now has `unit-tests`, `package`, `publish` jobs.
-- The first version of this was a workflow artifact with 7-day retention; the user corrected it to a pre-release. Retention is now a prune step in the same workflow (deletes `nightly-*` releases older than 7 days with `--cleanup-tag`); the artifact between jobs lives 1 day.
+- The first version of this was a workflow artifact with 7-day retention; the user corrected it to a pre-release. Retention is now a prune step in the same workflow (see the change below); the artifact between jobs lives 1 day.
 - `compute-version.sh dev` now also prints `tag=nightly-<version>`. These tags don't match the `vX.Y.Z` filter, so they never affect release numbering.
-- My addition, not requested: scheduled runs skip nights with no commit in the last 25 hours (manual runs always build).
+- Superseded: scheduled runs first skipped nights with no commit in the last 25 hours.
 - Added the glossary term **Nightly build** so it isn't confused with a Manager release.
 - Scheduled workflows only run from the default branch, and GitHub disables schedules after 60 days without repo activity.
+- Change (user): a nightly is skipped when `main` is unchanged, judged by comparing the latest `nightly-*` release's `targetCommitish` with the current commit, rather than by commit age. A failed earlier attempt leaves no release, so the next run retries. This applies to manual runs too; they have a `force` input to build anyway (my addition).
+- Change (user): retention is the last 7 nightlies by count, not 7 days, so skipped nights don't shrink the history. The prune step deletes older `nightly-*` releases with `--cleanup-tag`.
