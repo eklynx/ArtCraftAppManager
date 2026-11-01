@@ -45,7 +45,8 @@ Running log of decisions, changes and tradeoffs beyond the README. Dated 2026-10
 
 ## GitHub token setting
 - Added REQ-SET-9 (not in the README): an optional GitHub token in Settings, stored in the Keychain via `KeychainTokenProvider`. Used for release lookups and for the registry refresh, so a private repo works. Test launches never read or write the real Keychain item. The Keychain access itself is only checked manually (there is no hermetic test for it).
-- Suite is now **119 of 119** (110 unit + 10 UI) with this change.
+- The GitHub section is hidden unless Option is held when Settings is activated, and stays until that Settings window closes. Note the keyboard shortcut cannot carry the Option key (`⌘⌥,` is a different shortcut from the menu's `⌘,`), so reveal it by Option-clicking the toolbar Settings button or the app menu's Settings item. Detection reads `NSEvent.modifierFlags` when the Settings window becomes key.
+- Suite is **119 of 119** (110 unit + 10 UI) with this change.
 
 ## Not done
 - Production adapters written: `URLSessionTransport`, `KeychainTokenProvider`, `BundledRemoteRegistryProvider` (unit-tested through fakes), `URLSessionDownloader`, `FileManagerTrasher`, `WorkspaceLauncher`, `SystemAppLookup` (LaunchServices + `mdfind`), `UserNotificationNotifier`, `WorkspaceQuitObserver`, `SMAppServiceLoginItem`. The system-facing ones are not unit-tested (REQ-TST-3 keeps tests off the real network/Trash/login items); they need the manual checks below.

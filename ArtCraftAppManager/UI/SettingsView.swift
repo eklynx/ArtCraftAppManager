@@ -4,6 +4,8 @@ import SwiftUI
 /// Settings window (docs/specs/05-settings.md).
 struct SettingsView: View {
     @Environment(AppModel.self) private var model
+    /// The GitHub section is an advanced setting: shown only if Option was held when Settings was activated (REQ-SET-9).
+    @State private var showsGitHub = false
 
     var body: some View {
         Form {
@@ -31,11 +33,13 @@ struct SettingsView: View {
                 Toggle("Automatically Install Updates", isOn: Binding(get: { model.policy.autoInstall }, set: model.setAutoInstall))
                     .accessibilityIdentifier("settings.autoInstall")
             }
-            Section("GitHub") {
-                SecureField("Token (optional)", text: Bindable(model).githubToken)
-                    .accessibilityIdentifier("settings.githubToken")
-                Text("A token raises GitHub's rate limit and lets the registry refresh read a private repository. It is stored in your Keychain.")
-                    .font(.caption).foregroundStyle(.secondary)
+            if showsGitHub {
+                Section("GitHub") {
+                    SecureField("Token (optional)", text: Bindable(model).githubToken)
+                        .accessibilityIdentifier("settings.githubToken")
+                    Text("A token raises GitHub's rate limit and lets the registry refresh read a private repository. It is stored in your Keychain.")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
             }
             Section("General") {
                 Toggle("Launch at login", isOn: Binding(get: { model.launchAtLogin }, set: model.setLaunchAtLogin))
@@ -43,8 +47,23 @@ struct SettingsView: View {
             }
         }
         .formStyle(.grouped)
+        .onAppear { revealIfOptionHeld() }
+        .onReceive(NotificationCenter.default.publisher(for: NSWindow.didBecomeKeyNotification)) { note in
+            if Self.isSettingsWindow(note.object) { revealIfOptionHeld() }
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSWindow.willCloseNotification)) { note in
+            if Self.isSettingsWindow(note.object) { showsGitHub = false }
+        }
         .frame(width: 520)
         .padding(.vertical, 8)
+    }
+
+    private func revealIfOptionHeld() {
+        if NSEvent.modifierFlags.contains(.option) { showsGitHub = true }
+    }
+
+    private static func isSettingsWindow(_ object: Any?) -> Bool {
+        (object as? NSWindow)?.identifier?.rawValue.localizedCaseInsensitiveContains("settings") == true
     }
 
     private func folderRow(_ title: String, url: URL, id: String, choose: @escaping (URL) -> Void) -> some View {

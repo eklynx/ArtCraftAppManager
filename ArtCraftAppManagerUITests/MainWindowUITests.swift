@@ -79,9 +79,14 @@ final class MainWindowUITests: XCTestCase {
     }
 
     @MainActor
-    func test_REQ_SET_9_githubTokenFieldIsSecure() {
+    func test_REQ_SET_9_githubTokenIsHiddenUnlessOptionIsHeld() {
         let app = launch()
         app.typeKey(",", modifierFlags: .command)
+        XCTAssertTrue(app.buttons["settings.defaultInstall.choose"].waitForExistence(timeout: 5))
+        XCTAssertFalse(app.secureTextFields["settings.githubToken"].exists)
+        app.typeKey("w", modifierFlags: .command)  // close Settings
+
+        XCUIElement.perform(withKeyModifiers: .option) { app.buttons["toolbar.settings"].click() }
         XCTAssertTrue(app.secureTextFields["settings.githubToken"].waitForExistence(timeout: 5))
     }
 

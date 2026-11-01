@@ -15,6 +15,6 @@ Setup once: build and run the Manager from Xcode (or open the built `.app`). Hav
 | 7 | Launch at login | Turn on Launch at login (approve in System Settings if asked), log out and in. | The Manager starts with no window and a menu bar icon; closing the window afterwards keeps it running. With the setting off, closing the window quits. | SET-6, WIN-9, WIN-10, WIN-11 |
 | 8 | Gatekeeper | Open an installed App for the first time. | It opens as a normally downloaded app would (quarantine was not stripped). | INS-8 |
 | 9 | Uninstall | Click Uninstall and confirm. | The App moves to the Trash; its data and preferences remain. | INS-14 |
-| 10 | Remote registry | Make sure the repository is public (or store a GitHub token in the Keychain), add an App entry to `docs/registry/apps.json` on `main`, relaunch. | The new App appears without a new Manager build. | REG-2, REG-3 |
+| 10 | Remote registry | Make sure the repository is public (or store a GitHub token: Option-click Settings to reveal the hidden GitHub field), add an App entry to `docs/registry/apps.json` on `main`, relaunch. | The new App appears without a new Manager build. | REG-2, REG-3 |
 
 Known limitation: login-launch detection uses the login-item Apple event and is best-effort; if the window appears at login, report it.
