@@ -73,10 +73,10 @@ struct WorkflowTests {
         }
     }
 
-    @Test("REQ-TST-6 runner labels come from RUNNER_LABELS and default to xcode-27")
+    @Test("REQ-TST-6 runner labels come from RUNNER_LABELS and default to xcode-26")
     func runnerSelection() throws {
         for name in ["unit-tests.yml", "package.yml"] {
-            #expect(try workflow(name).contains("vars.RUNNER_LABELS || '[\"xcode-27\"]'"))
+            #expect(try workflow(name).contains("vars.RUNNER_LABELS || '[\"xcode-26\"]'"))
         }
     }
 

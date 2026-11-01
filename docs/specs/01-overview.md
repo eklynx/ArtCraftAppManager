@@ -16,6 +16,6 @@ The ArtCraft launcher distributed by the vendor only manages applications under 
 - Mac App Store distribution (see [ADR 0001](../adr/0001-sandbox-and-install-strategy.md)).
 
 ## Platform
-- macOS 27+ (project deployment target), SwiftUI, Swift.
+- macOS 26+ (project deployment target), SwiftUI, Swift.
 - Only the `macos-universal` `.dmg` of a Release is used.
 - Single user, single machine; no accounts or server component.
