@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="ArtCraftAppManager/Assets.xcassets/AppIcon.appiconset/icon_256.png" alt="ArtCraft Application Manager icon" width="128" height="128">
+</p>
+
 # ArtCraft Application Manager
 ## Description
 This application manages the installation and updates of the ArtCraft suite of applications.
