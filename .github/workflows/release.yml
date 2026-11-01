@@ -1,0 +1,47 @@
+name: Release
+
+# Publishes a Manager release: tests, Developer ID signing, notarization, a stapled DMG and a GitHub release.
+# Manual only. The version is derived from the existing vX.Y.Z tags (scripts/compute-version.sh); pushing a tag does nothing.
+on:
+  workflow_dispatch:
+    inputs:
+      bump:
+        description: Which part of the latest release version to increment
+        type: choice
+        options: [patch, minor, major]
+        default: patch
+
+permissions:
+  contents: read
+
+jobs:
+  unit-tests:
+    uses: ./.github/workflows/unit-tests.yml
+
+  package:
+    needs: unit-tests
+    uses: ./.github/workflows/package.yml
+    secrets: inherit
+    with:
+      kind: release
+      bump: ${{ inputs.bump }}
+
+  publish:
+    needs: package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.package.outputs.artifact }}
+          path: dist
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create '${{ needs.package.outputs.tag }}' dist/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title 'ArtCraft Application Manager ${{ needs.package.outputs.version }}' \
+            --generate-notes

@@ -32,7 +32,7 @@ Requires Xcode 27 on macOS 27. Open `ArtCraftAppManager.xcodeproj` and run the `
 xcodebuild test -project ArtCraftAppManager.xcodeproj -scheme ArtCraftAppManager -destination 'platform=macOS'
 ```
 
-The unit tests (Swift Testing) are hermetic. The UI tests drive the real app, so leave the mouse and keyboard alone while they run. Steps that can't be automated are in [`docs/manual-verification.md`](docs/manual-verification.md). The app runs unsandboxed (see [`docs/adr/0001-sandbox-and-install-strategy.md`](docs/adr/0001-sandbox-and-install-strategy.md)).
+The unit tests (Swift Testing) are hermetic. The UI tests drive the real app, so leave the mouse and keyboard alone while they run. GitHub Actions run the tests and publish signed releases; see [`docs/ci.md`](docs/ci.md). Steps that can't be automated are in [`docs/manual-verification.md`](docs/manual-verification.md). The app runs unsandboxed (see [`docs/adr/0001-sandbox-and-install-strategy.md`](docs/adr/0001-sandbox-and-install-strategy.md)).
 
 ## License
 MIT — see [`LICENSE`](LICENSE).

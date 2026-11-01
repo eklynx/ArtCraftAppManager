@@ -6,6 +6,9 @@
 - **REQ-TST-3** Tests are hermetic: protocol fakes ([08](08-architecture.md)), temporary folders under `$TMPDIR`, no network, no real Trash.
 - **REQ-TST-4** Registry tests: `apps.json` validates against `apps.schema.json`; ids unique; every `tagPattern`/`assetPattern` compiles and contains a `version` group; each pattern matches the fixture release JSON of its App (fixtures captured from the 14 real latest releases on 2026-10-31).
 - **REQ-TST-5** Install tests use a tiny fixture DMG containing a stub `.app` (created by a script at test setup with `hdiutil`); safe-replace tests inject failures at each step and assert the old App is intact.
+- **REQ-TST-6** GitHub Actions (`.github/workflows/`, described in [`docs/ci.md`](../ci.md)): "Run Unit Tests" runs only `ArtCraftAppManagerTests` on push to `main`, on pull requests and on demand; "Run UI Tests" runs only `ArtCraftAppManagerUITests`, on demand only; "Release" runs on demand only, after the unit tests pass, and signs through the shared `package.yml`, the only workflow that touches signing secrets. The runner comes from the `RUNNER_LABELS` variable, defaulting to `xcode-27`.
+- **REQ-TST-8** "Nightly Build" runs on a schedule (and on demand), skips scheduled nights with no new commit on `main`, runs the unit tests, then produces a fully signed, notarized and stapled DMG versioned `X.Y.Z-<UTC timestamp>.<short git hash>`. It is published as a GitHub **pre-release** tagged `nightly-<version>` (never marked latest, no `vX.Y.Z` tag, so it is not a Manager release), and nightly pre-releases older than 7 days are deleted with their tags.
+- **REQ-TST-7** A Manager release is versioned `X.Y.Z`: the latest `vX.Y.Z` tag with the chosen part incremented, `1.0.0` when there is no tag. Every other build is `X.Y.Z-<UTC timestamp>.<short git hash>`, with `X.Y.Z` the latest tag with its patch incremented. `scripts/compute-version.sh` implements this and `scripts/tests/compute-version-tests.sh` tests it.
 
 ## Conventions
 - Swift Testing tests carry requirement IDs in their display name (`@Test("REQ-REG-8 …")`). XCUITest method names cannot contain hyphens, so they use `test_REQ_WIN_1_…`; `SpecCoverageTests` treats `REQ_X_n` as `REQ-X-n`.
@@ -34,6 +37,6 @@ Test names follow `REQ-<AREA>-<n>_<behaviour>`. Level: **U** unit, **I** integra
 | NOT | NOT-1…8 | U (matrix table-driven, dedupe, quit-observation via fake workspace) |
 | ERR | ERR-1…3 | U (every code has text; per-App isolation) |
 | ARC | ARC-1…9 | U/I (state file rebuild, resource present); ARC-1/2/5 verified by review checklist test (protocol docs contain "Happy path"/"Errors") |
-| TST | TST-1…5 | `SpecCoverageTests` and registry tests |
+| TST | TST-1…8 | `SpecCoverageTests`, registry tests, `WorkflowTests` (workflow shape; runs the version script test) |
 
 Manual checks (cannot be automated hermetically): Gatekeeper first-launch of an installed App; real Login Item approval flow; a live update of one real App on an external volume.

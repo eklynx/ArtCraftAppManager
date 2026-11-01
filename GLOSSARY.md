@@ -31,3 +31,7 @@
 **Release date**: The date a Release was published on GitHub.
 
 **Cached icon**: A copy of an App's icon downloaded from GitHub and kept locally, shown while the App is not installed.
+
+**Manager release**: A tagged, signed and notarized build of the Manager, published as a disk image on the Manager's own GitHub releases. _Avoid_: Release (that term is for Apps).
+
+**Nightly build**: A signed and notarized build of the Manager's `main` branch, published as a GitHub pre-release and deleted after a week. Not a Manager release.

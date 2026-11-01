@@ -1,0 +1,69 @@
+name: Nightly Build
+
+# A fully signed, notarized and stapled build of main, version X.Y.Z-<timestamp>.<hash>, published as a GitHub
+# pre-release tagged nightly-<version>. Not a Manager release (never "latest", no vX.Y.Z tag). Pre-releases older
+# than 7 days are deleted along with their tags.
+on:
+  schedule:
+    - cron: '0 3 * * *' # 03:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      build: ${{ steps.check.outputs.build }}
+    steps:
+      - uses: actions/checkout@v4
+      # Scheduled runs skip nights with no new commit on main; manual runs always build.
+      - id: check
+        run: |
+          if [ '${{ github.event_name }}' = schedule ] && [ -z "$(git log --since='25 hours ago' --format=%H -1)" ]; then
+            echo "build=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "build=true" >> "$GITHUB_OUTPUT"
+          fi
+
+  unit-tests:
+    needs: changes
+    if: ${{ needs.changes.outputs.build == 'true' }}
+    uses: ./.github/workflows/unit-tests.yml
+
+  package:
+    needs: unit-tests
+    uses: ./.github/workflows/package.yml
+    secrets: inherit
+    with:
+      kind: nightly
+
+
+  publish:
+    needs: package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.package.outputs.artifact }}
+          path: dist
+      - name: Create pre-release
+        run: |
+          gh release create '${{ needs.package.outputs.tag }}' dist/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title 'Nightly ${{ needs.package.outputs.version }}' \
+            --notes "Nightly build of main at $GITHUB_SHA. Not a release." \
+            --prerelease --latest=false
+      - name: Delete nightlies older than 7 days
+        run: |
+          gh release list --repo "$GITHUB_REPOSITORY" --limit 200 --json tagName,createdAt \
+            --jq '.[] | select(.tagName | startswith("nightly-")) | select((.createdAt | fromdateiso8601) < (now - 604800)) | .tagName' |
+          while read -r tag; do
+            gh release delete "$tag" --repo "$GITHUB_REPOSITORY" --cleanup-tag --yes
+          done
