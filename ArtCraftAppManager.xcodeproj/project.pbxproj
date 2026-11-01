@@ -32,6 +32,28 @@
 		9BA0E478309576E4005AFA92 /* ArtCraftAppManagerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ArtCraftAppManagerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9BA0E482309576E4005AFA92 /* ArtCraftAppManagerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ArtCraftAppManagerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9BA0E4A0309576E5005AFA92 /* apps.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = apps.json; path = docs/registry/apps.json; sourceTree = SOURCE_ROOT; };
+		9BE3DFCC3097AC9100A8D5F0 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		9BE3DFCD3097AC9800A8D5F0 /* 0001-sandbox-and-install-strategy.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "0001-sandbox-and-install-strategy.md"; sourceTree = "<group>"; };
+		9BE3DFCE3097AC9800A8D5F0 /* 0002-registry-bundled-with-remote-refresh.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "0002-registry-bundled-with-remote-refresh.md"; sourceTree = "<group>"; };
+		9BE3DFD03097AC9800A8D5F0 /* domain.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = domain.md; sourceTree = "<group>"; };
+		9BE3DFD13097AC9800A8D5F0 /* issue-tracker.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "issue-tracker.md"; sourceTree = "<group>"; };
+		9BE3DFD23097AC9800A8D5F0 /* triage-labels.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "triage-labels.md"; sourceTree = "<group>"; };
+		9BE3DFD43097AC9800A8D5F0 /* ApplicationLine.pxd */ = {isa = PBXFileReference; lastKnownFileType = file; path = ApplicationLine.pxd; sourceTree = "<group>"; };
+		9BE3DFD53097AC9800A8D5F0 /* ApplicationLine.svg */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = ApplicationLine.svg; sourceTree = "<group>"; };
+		9BE3DFD73097AC9800A8D5F0 /* apps.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = apps.json; sourceTree = "<group>"; };
+		9BE3DFD83097AC9800A8D5F0 /* apps.schema.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = apps.schema.json; sourceTree = "<group>"; };
+		9BE3DFDA3097AC9800A8D5F0 /* 01-overview.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "01-overview.md"; sourceTree = "<group>"; };
+		9BE3DFDB3097AC9800A8D5F0 /* 02-app-registry.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "02-app-registry.md"; sourceTree = "<group>"; };
+		9BE3DFDC3097AC9800A8D5F0 /* 03-install-update.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "03-install-update.md"; sourceTree = "<group>"; };
+		9BE3DFDD3097AC9800A8D5F0 /* 04-main-window.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "04-main-window.md"; sourceTree = "<group>"; };
+		9BE3DFDE3097AC9800A8D5F0 /* 05-settings.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "05-settings.md"; sourceTree = "<group>"; };
+		9BE3DFDF3097AC9800A8D5F0 /* 06-notifications.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "06-notifications.md"; sourceTree = "<group>"; };
+		9BE3DFE03097AC9800A8D5F0 /* 07-errors-and-status.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "07-errors-and-status.md"; sourceTree = "<group>"; };
+		9BE3DFE13097AC9800A8D5F0 /* 08-architecture.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "08-architecture.md"; sourceTree = "<group>"; };
+		9BE3DFE23097AC9800A8D5F0 /* 09-test-plan.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "09-test-plan.md"; sourceTree = "<group>"; };
+		9BE3DFE33097AC9800A8D5F0 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		9BE3DFE53097AC9800A8D5F0 /* implementation-notes.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "implementation-notes.md"; sourceTree = "<group>"; };
+		9BE3DFE63097AC9800A8D5F0 /* manual-verification.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "manual-verification.md"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -74,10 +96,12 @@
 		9BA0E462309576E2005AFA92 = {
 			isa = PBXGroup;
 			children = (
+				9BE3DFCC3097AC9100A8D5F0 /* README.md */,
 				9BA0E46D309576E2005AFA92 /* ArtCraftAppManager */,
 				9BA0E47B309576E4005AFA92 /* ArtCraftAppManagerTests */,
 				9BA0E485309576E4005AFA92 /* ArtCraftAppManagerUITests */,
 				9BA0E4A0309576E5005AFA92 /* apps.json */,
+				9BE3DFE73097AC9800A8D5F0 /* docs */,
 				9BA0E46C309576E2005AFA92 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -90,6 +114,74 @@
 				9BA0E482309576E4005AFA92 /* ArtCraftAppManagerUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		9BE3DFCF3097AC9800A8D5F0 /* adr */ = {
+			isa = PBXGroup;
+			children = (
+				9BE3DFCD3097AC9800A8D5F0 /* 0001-sandbox-and-install-strategy.md */,
+				9BE3DFCE3097AC9800A8D5F0 /* 0002-registry-bundled-with-remote-refresh.md */,
+			);
+			path = adr;
+			sourceTree = "<group>";
+		};
+		9BE3DFD33097AC9800A8D5F0 /* agents */ = {
+			isa = PBXGroup;
+			children = (
+				9BE3DFD03097AC9800A8D5F0 /* domain.md */,
+				9BE3DFD13097AC9800A8D5F0 /* issue-tracker.md */,
+				9BE3DFD23097AC9800A8D5F0 /* triage-labels.md */,
+			);
+			path = agents;
+			sourceTree = "<group>";
+		};
+		9BE3DFD63097AC9800A8D5F0 /* prototypes */ = {
+			isa = PBXGroup;
+			children = (
+				9BE3DFD43097AC9800A8D5F0 /* ApplicationLine.pxd */,
+				9BE3DFD53097AC9800A8D5F0 /* ApplicationLine.svg */,
+			);
+			path = prototypes;
+			sourceTree = "<group>";
+		};
+		9BE3DFD93097AC9800A8D5F0 /* registry */ = {
+			isa = PBXGroup;
+			children = (
+				9BE3DFD73097AC9800A8D5F0 /* apps.json */,
+				9BE3DFD83097AC9800A8D5F0 /* apps.schema.json */,
+			);
+			path = registry;
+			sourceTree = "<group>";
+		};
+		9BE3DFE43097AC9800A8D5F0 /* specs */ = {
+			isa = PBXGroup;
+			children = (
+				9BE3DFDA3097AC9800A8D5F0 /* 01-overview.md */,
+				9BE3DFDB3097AC9800A8D5F0 /* 02-app-registry.md */,
+				9BE3DFDC3097AC9800A8D5F0 /* 03-install-update.md */,
+				9BE3DFDD3097AC9800A8D5F0 /* 04-main-window.md */,
+				9BE3DFDE3097AC9800A8D5F0 /* 05-settings.md */,
+				9BE3DFDF3097AC9800A8D5F0 /* 06-notifications.md */,
+				9BE3DFE03097AC9800A8D5F0 /* 07-errors-and-status.md */,
+				9BE3DFE13097AC9800A8D5F0 /* 08-architecture.md */,
+				9BE3DFE23097AC9800A8D5F0 /* 09-test-plan.md */,
+				9BE3DFE33097AC9800A8D5F0 /* README.md */,
+			);
+			path = specs;
+			sourceTree = "<group>";
+		};
+		9BE3DFE73097AC9800A8D5F0 /* docs */ = {
+			isa = PBXGroup;
+			children = (
+				9BE3DFCF3097AC9800A8D5F0 /* adr */,
+				9BE3DFD33097AC9800A8D5F0 /* agents */,
+				9BE3DFD63097AC9800A8D5F0 /* prototypes */,
+				9BE3DFD93097AC9800A8D5F0 /* registry */,
+				9BE3DFE43097AC9800A8D5F0 /* specs */,
+				9BE3DFE53097AC9800A8D5F0 /* implementation-notes.md */,
+				9BE3DFE63097AC9800A8D5F0 /* manual-verification.md */,
+			);
+			path = docs;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
