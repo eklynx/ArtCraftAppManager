@@ -1,5 +1,6 @@
 // SOURCE OF TRUTH (for humans and AI agents): the `Releases` namespace contract.
-// Types: ReleaseFetching, HTTPTransport, TokenProviding, AppVersion, ReleaseResolver, UpdateCoordinator.
+// Types: ReleaseFetching, HTTPTransport, TokenProviding, AppVersion, Release, ReleaseResult.
+// Implementations: ReleaseResolver.swift, GitHubReleaseFetcher.swift, UpdateCoordinator.swift, URLSessionTransport.swift, KeychainTokenProvider.swift.
 // Read the doc comments on each protocol (happy path + errors) before calling into this namespace,
 // and the governing spec: docs/specs/02-app-registry.md. Other namespaces MUST go through these protocols.
 
@@ -70,92 +71,4 @@ protocol HTTPTransport {
 /// **Errors:** none thrown; nil means "no token" and requests go unauthenticated.
 protocol TokenProviding {
     func token() -> String?
-}
-
-enum ReleaseResolver {
-    /// Turns a GitHub `releases/latest` JSON body into a usable Release (REQ-REG-6, REQ-REG-7).
-    /// - Throws: `ManagerError.releaseUnusable` for draft/prerelease, tag mismatch, or zero/multiple matching assets.
-    static func resolve(app: RegistryApp, json: Data) throws -> Release {
-        let unusable = ManagerError.releaseUnusable(app: app.displayName)
-        guard let object = try? JSONSerialization.jsonObject(with: json) as? [String: Any],
-              let tag = object["tag_name"] as? String,
-              (object["draft"] as? Bool) != true, (object["prerelease"] as? Bool) != true,
-              let tagVersion = version(in: tag, pattern: app.tagPattern),
-              let rawAssets = object["assets"] as? [[String: Any]],
-              let assetRegex = try? NSRegularExpression(pattern: app.assetPattern)
-        else { throw unusable }
-
-        let assets = rawAssets.compactMap { dict -> (name: String, url: URL)? in
-            guard let name = dict["name"] as? String, let urlString = dict["browser_download_url"] as? String,
-                  let url = URL(string: urlString) else { return nil }
-            return (name, url)
-        }
-        let dmgs = assets.filter { assetRegex.firstMatch(in: $0.name, range: NSRange($0.name.startIndex..., in: $0.name)) != nil }
-        guard dmgs.count == 1 else { throw unusable }
-        let checksum = app.checksumAsset.flatMap { wanted in assets.first { $0.name == wanted }?.url }
-        return Release(version: tagVersion, tag: tag, dmgURL: dmgs[0].url, dmgName: dmgs[0].name, checksumURL: checksum,
-                       publishedAt: (object["published_at"] as? String).flatMap { ISO8601DateFormatter().date(from: $0) })
-    }
-
-    private static func version(in text: String, pattern: String) -> AppVersion? {
-        guard let regex = try? NSRegularExpression(pattern: pattern),
-              let match = regex.firstMatch(in: text, range: NSRange(text.startIndex..., in: text)),
-              let range = Range(match.range(withName: "version"), in: text) else { return nil }
-        return AppVersion(String(text[range]))
-    }
-}
-
-struct GitHubReleaseFetcher: ReleaseFetching {
-    var transport: HTTPTransport
-    var tokens: TokenProviding?
-
-    func latestRelease(for app: RegistryApp, etag: String?) async throws -> ReleaseResult {
-        var request = URLRequest(url: app.apiLatestUrl)
-        request.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
-        if let etag { request.setValue(etag, forHTTPHeaderField: "If-None-Match") }
-        if let token = tokens?.token() { request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization") }
-
-        let data: Data, response: HTTPURLResponse
-        do { (data, response) = try await transport.send(request) }
-        catch is CancellationError { throw CancellationError() }
-        catch { throw ManagerError.offline }
-
-        switch response.statusCode {
-        case 304:
-            return .notModified
-        case 200:
-            let release = try ReleaseResolver.resolve(app: app, json: data)
-            return .release(release, etag: response.value(forHTTPHeaderField: "ETag"))
-        case 403, 429:
-            let exhausted = response.value(forHTTPHeaderField: "X-RateLimit-Remaining") == "0" || response.statusCode == 429
-            guard exhausted else { throw ManagerError.releaseUnusable(app: app.displayName) }
-            let reset = response.value(forHTTPHeaderField: "X-RateLimit-Reset").flatMap(TimeInterval.init)
-            throw ManagerError.rateLimited(resetAt: reset.map { Date(timeIntervalSince1970: $0) } ?? Date().addingTimeInterval(60))
-        case 404:
-            throw ManagerError.releaseUnusable(app: app.displayName)
-        default:
-            throw ManagerError.offline
-        }
-    }
-}
-
-/// Runs update checks (REQ-REG-12).
-actor UpdateCoordinator {
-    static let interval: TimeInterval = 6 * 60 * 60
-
-    private let fetcher: ReleaseFetching
-    private var isChecking = false
-    init(fetcher: ReleaseFetching) { self.fetcher = fetcher }
-
-    /// Checks all given apps. Returns false (and does nothing) if a check is already in flight.
-    func checkNow(apps: [RegistryApp]) async -> Bool {
-        guard !isChecking else { return false }
-        isChecking = true
-        defer { isChecking = false }
-        for app in apps {
-            if Task.isCancelled { break }
-            _ = try? await fetcher.latestRelease(for: app, etag: nil)
-        }
-        return true
-    }
 }

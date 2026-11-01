@@ -1,5 +1,6 @@
 // SOURCE OF TRUTH (for humans and AI agents): the `Notifications` namespace contract.
-// Types: UpdateNotifying, QuitObserving, StatusReporting, UpdatePlanner, AutoUpdateController.
+// Types: UpdateNotifying, QuitObserving, StatusReporting, NotificationKind, UpdateAction, DeliveryOutcome.
+// Implementations: UpdatePlanner.swift, UpdateNotificationService.swift, AutoUpdateController.swift, UserNotificationNotifier.swift, WorkspaceQuitObserver.swift.
 // Read the doc comments on each protocol (happy path + errors) before calling into this namespace,
 // and the governing spec: docs/specs/06-notifications.md. Other namespaces MUST go through these protocols.
 
@@ -43,94 +44,6 @@ enum UpdateAction: Equatable {
     case downloadThenInstallWhenAppQuits
 }
 
-enum UpdatePlanner {
-    /// The behaviour matrix of REQ-NOT-4 for an installed App that has a newer Release.
-    static func action(autoDownload: Bool, autoInstall: Bool, appRunning: Bool) -> UpdateAction {
-        guard autoDownload else { return .notifyAvailable }
-        guard autoInstall else { return .downloadThenNotifyReady }
-        return appRunning ? .downloadThenInstallWhenAppQuits : .downloadAndInstall
-    }
-}
-
 enum DeliveryOutcome: Equatable {
     case posted, suppressedDuplicate, badgeOnly
-}
-
-final class UpdateNotificationService {
-    private let notifier: UpdateNotifying
-    private let state: ManagerStateStoring
-    private var allowed = true
-
-    init(notifier: UpdateNotifying, state: ManagerStateStoring) {
-        self.notifier = notifier
-        self.state = state
-    }
-
-    /// Requests permission (REQ-NOT-1).
-    func start() async {
-        allowed = await notifier.requestAuthorization()
-    }
-
-    /// Posts at most once per App, version and kind (REQ-NOT-3); degrades to a badge when denied (REQ-NOT-1).
-    func deliver(_ kind: NotificationKind, app: RegistryApp, version: String) async -> DeliveryOutcome {
-        let key = "\(kind.rawValue)|\(app.id)|\(version)"
-        var current = state.load()
-        guard current.notified.insert(key).inserted else { return .suppressedDuplicate }
-        try? state.save(current)
-        guard allowed else { return .badgeOnly }
-        await notifier.post(kind: kind, appId: app.id, appName: app.displayName, version: version)
-        return .posted
-    }
-
-    /// The App id whose row a clicked notification should bring into view (REQ-NOT-2).
-    func rowToReveal(forClickedNotificationOf appId: String) -> String? {
-        appId.isEmpty ? nil : appId
-    }
-}
-
-final class AutoUpdateController {
-    private let installer: InstallationManaging
-    private let locator: InstalledAppLocating
-    private let notifications: UpdateNotificationService
-    private let quitObserver: QuitObserving
-    private let reporter: StatusReporting
-
-    init(installer: InstallationManaging, locator: InstalledAppLocating, notifications: UpdateNotificationService,
-         quitObserver: QuitObserving, reporter: StatusReporting) {
-        self.installer = installer
-        self.locator = locator
-        self.notifications = notifications
-        self.quitObserver = quitObserver
-        self.reporter = reporter
-    }
-
-    /// Applies the REQ-NOT-4 matrix for one App with a newer release (REQ-NOT-5, REQ-NOT-6).
-    func handleNewRelease(app: RegistryApp, installed: InstalledApp, release: Release, policy: UpdatePolicy, windowVisible: Bool) async {
-        let version = release.version.description
-        let action = UpdatePlanner.action(autoDownload: policy.autoDownload, autoInstall: policy.autoInstall,
-                                          appRunning: locator.isRunning(installed))
-        do {
-            switch action {
-            case .notifyAvailable:
-                _ = await notifications.deliver(.updateAvailable, app: app, version: version)
-            case .downloadThenNotifyReady:
-                try await installer.download(release, app: app) { _ in }
-                _ = await notifications.deliver(.updateReady, app: app, version: version)
-            case .downloadAndInstall:
-                _ = try await installer.update(installed, app: app, to: release) { _ in }
-                _ = await notifications.deliver(.updateInstalled, app: app, version: version)
-            case .downloadThenInstallWhenAppQuits:
-                try await installer.download(release, app: app) { _ in }
-                _ = await notifications.deliver(.updateReadyAppRunning, app: app, version: version)
-                await quitObserver.waitForQuit(of: installed)
-                _ = try await installer.update(installed, app: app, to: release) { _ in }
-                _ = await notifications.deliver(.updateInstalled, app: app, version: version)
-            }
-        } catch let error as ManagerError {
-            reporter.show(error)
-            if !windowVisible { reporter.setAttentionBadge(true) }
-        } catch {
-            // Cancellation or an unexpected error: nothing to show.
-        }
-    }
 }

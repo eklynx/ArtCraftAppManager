@@ -48,6 +48,32 @@ struct ArchitectureTests {
         }
     }
 
+    @Test("REQ-ARC-9 a file that declares a protocol holds no implementation or logic-bearing type")
+    func contractFilesHoldNoImplementations() {
+        func protocolNames(_ source: String) -> [String] {
+            source.components(separatedBy: "\n").filter { $0.hasPrefix("protocol ") }
+                .map { String($0.split(separator: " ")[1]).trimmingCharacters(in: CharacterSet(charactersIn: ":{")) }
+        }
+        let known = Set(appFiles.flatMap { protocolNames(text($0)) })
+        for file in appFiles where !protocolNames(text(file)).isEmpty {
+            let lines = text(file).components(separatedBy: "\n")
+            var current: (name: String, kind: String)?
+            for line in lines {
+                if let match = line.firstMatch(of: /^(?:final )?(class|actor|struct|enum) (\w+)([^{]*)/) {
+                    let kind = String(match.1), name = String(match.2)
+                    current = (name, kind)
+                    #expect(kind != "class" && kind != "actor", "\(file.lastPathComponent): \(kind) \(name) belongs in its own file")
+                    let conformances = match.3.split(whereSeparator: { ": ,".contains($0) }).map(String.init)
+                    #expect(Set(conformances).isDisjoint(with: known), "\(file.lastPathComponent): \(name) implements a protocol; move it to its own file")
+                } else if line.hasPrefix("}") {
+                    current = nil
+                } else if let current, current.kind == "enum", line.hasPrefix("    static func ") {
+                    Issue.record("\(file.lastPathComponent): enum \(current.name) holds logic; move it to its own file")
+                }
+            }
+        }
+    }
+
     @Test("REQ-ARC-5 App Sandbox is off and Hardened Runtime is on (ADR 0001)")
     func sandboxOff() {
         let pbx = text(Repo.pbxproj)

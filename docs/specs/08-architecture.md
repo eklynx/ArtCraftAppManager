@@ -23,6 +23,7 @@ ArtCraftAppManager/
 - **REQ-ARC-5** **App Sandbox is disabled** ([ADR 0001](../adr/0001-sandbox-and-install-strategy.md)): the Manager must write to arbitrary volumes, mount DMGs and replace apps. The target is signed with Developer ID or ad-hoc; Hardened Runtime on.
 - **REQ-ARC-6** Long operations are `async` and cancellable; UI state changes occur on the main actor.
 - **REQ-ARC-8** Every file that declares a namespace protocol starts with a `SOURCE OF TRUTH` header comment naming the namespace, its types and the governing spec, so agents treat it as the reference for that namespace.
+- **REQ-ARC-9** A file that declares a protocol (a namespace contract file) contains only protocols and plain data types: no class or actor, no type that conforms to a namespace protocol, and no enum of logic (`static func`). Implementations and logic types live in their own files, named after the type, in the same namespace folder.
 - **REQ-ARC-7** The registry's bundled copy is added to the app target as a resource from `docs/registry/apps.json` (single source; no duplicate file).
 
 ## Protocol sketches (informative)

@@ -82,6 +82,13 @@ Running log of decisions, changes and tradeoffs beyond the README. Dated 2026-10
 - Small sizes: the four-tile layout is still readable at 18/36 px but the glyphs inside the tiles blur at 16 px; no design change made.
 - The asset files were generated before `AppIconAssetTests` was written, so that test was never red.
 
+## Contract vs implementation files
+- New rule (user request, REQ-ARC-9): a file that declares a protocol holds only protocols and plain data types; implementations and logic-bearing types (classes, actors, resolvers, planners, validators, schedulers) live in their own files named after the type, in the same namespace folder.
+- Move-only refactor, no behaviour change: `Install.swift`, `Releases.swift`, `Notifications.swift`, `Settings.swift`, `State/ManagerState.swift`, `Detection.swift`, `Icons.swift` and `AppRegistry.swift` shrank to contracts; `WorkspaceAdapters.swift` and `NotificationAdapters.swift` were split per type and deleted; `RegistryProvider.swift` was renamed `BundledRemoteRegistryProvider.swift`. Each contract header now lists its implementation files.
+- Plain-data types that appear in protocol signatures (`InstalledApp`, `Release`, `AppVersion`, `ManagerState`, `RegistryApp` …) stay in the contract file. Enums that only hold `static func` logic (`IconChoice`, `AppOrder`, `UpdatePlanner` …) count as logic and moved.
+- The files were split with a script, so each moved file kept the original file's `import` lines; some imports are now unused (harmless).
+- `ArchitectureTests` gained `REQ-ARC-9`; it was red before the moves.
+
 ## Manual verification result
 - 2026-11-01: the user ran the full manual checklist (`docs/manual-verification.md`, steps 1–13) and reported that all steps succeeded. That covers the real install/update onto another drive, Gatekeeper, notifications, login item, drag reordering, the row context menu and downloaded icons.
 
