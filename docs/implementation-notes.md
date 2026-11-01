@@ -49,7 +49,7 @@ Running log of decisions, changes and tradeoffs beyond the README. Dated 2026-10
 - Suite is **119 of 119** (110 unit + 10 UI) with this change.
 
 ## App order (reordering the Settings list)
-- Decisions (grilled with the user): one order drives the main window rows and the menu bar menu; stored as `appOrder` (list of ids, unset = registry order); apps missing from it are appended, unknown ids ignored; unchecked apps keep their place; a Reset Order button restores the default. Logic is `AppOrder` in `Settings/Settings.swift`; glossary term "App order" added. Specs: REQ-SET-10/11/12 (+ REQ-WIN-1 wording).
+- Decisions (grilled with the user): one order drives the main window rows and the menu bar menu; stored as `appOrder` (list of ids, unset = registry order); apps missing from it are appended, unknown ids ignored; unchecked apps keep their place; a Reset Order button restores the default. Logic is `AppOrder` in `Settings/AppOrder.swift`; glossary term "App order" added. Specs: REQ-SET-10/11/12 (+ REQ-WIN-1 wording).
 - **Drag-and-drop reordering is implemented (`onMove` with a visible handle) but not verified by an automated test**: XCUITest's synthetic drag never triggered the list's move, and I could not tell whether that is the test tool or the app. To guarantee a tested path I added a right-click menu with Move Up / Move Down (also exposed as accessibility actions). This goes slightly beyond the "no on-screen arrows" decision but adds no visible controls. Please try dragging a row by hand (see `docs/manual-verification.md`); if it does not work, tell me and I will fix or drop it.
 - Suite: **131 of 131** with this change.
 
