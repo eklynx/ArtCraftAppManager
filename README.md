@@ -26,7 +26,7 @@ The settings window has the following options:
 6. Launch at login: a toggle (off by default). When on, the Manager starts at login without showing its window and adds a menu bar item showing available updates, with Open Manager, Check Now and Quit. Closing the main window then leaves the Manager running in the menu bar; when off, closing the window quits the Manager.
 
 ## Building and testing
-Requires Xcode 27 on macOS 27. Open `ArtCraftAppManager.xcodeproj` and run the `ArtCraftAppManager` scheme, or from the command line:
+Requires Xcode 26 on macOS 26. Open `ArtCraftAppManager.xcodeproj` and run the `ArtCraftAppManager` scheme, or from the command line:
 
 ```sh
 xcodebuild test -project ArtCraftAppManager.xcodeproj -scheme ArtCraftAppManager -destination 'platform=macOS'

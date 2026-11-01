@@ -102,7 +102,7 @@ Running log of decisions, changes and tradeoffs beyond the README. Dated 2026-10
 
 ## GitHub Actions (build, test, sign/package)
 - Workflows: `unit-tests.yml`, `ui-tests.yml`, `release.yml`; scripts `compute-version.sh`, `package-dmg.sh`, `ExportOptions.plist`; guide in `docs/ci.md`; requirements REQ-TST-6/7 with `WorkflowTests`.
-- Not run for real: signing, notarization and the release job need your Apple secrets, . The default runner label `xcode-27` was given by the user (not checked against GitHub); the jobs are untested until the first run. `actionlint` and `shellcheck` are not installed here, so I only checked that the YAML parses and that the unit suite (including the new workflow tests) passes locally.
+- Not run for real: signing, notarization and the release job need your Apple secrets, . The default runner label `macos-26` was given by the user (not checked against GitHub); the jobs are untested until the first run. `actionlint` and `shellcheck` are not installed here, so I only checked that the YAML parses and that the unit suite (including the new workflow tests) passes locally.
 - There is no separate `ci.yml`: `xcodebuild test` already proves the build compiles.
 - Release is manual (`workflow_dispatch` with a `bump` input) rather than tag-triggered, because versions auto-increment; the workflow creates the tag via `gh release create --target $GITHUB_SHA`.
 - `MARKETING_VERSION` is always plain `X.Y.Z` (a `-timestamp.hash` suffix is invalid in `CFBundleShortVersionString`); the full dev version only names the unsigned artifact from `main` pushes.
@@ -121,3 +121,10 @@ Running log of decisions, changes and tradeoffs beyond the README. Dated 2026-10
 - Scheduled workflows only run from the default branch, and GitHub disables schedules after 60 days without repo activity.
 - Change (user): a nightly is skipped when `main` is unchanged, judged by comparing the latest `nightly-*` release's `targetCommitish` with the current commit, rather than by commit age. A failed earlier attempt leaves no release, so the next run retries. This applies to manual runs too; they have a `force` input to build anyway (my addition).
 - Change (user): retention is the last 7 nightlies by count, not 7 days, so skipped nights don't shrink the history. The prune step deletes older `nightly-*` releases with `--cleanup-tag`.
+
+### CodeQL
+- Default setup's Swift job failed (CodeQL tracer segfault, exit 139) and default setup was then narrowed to `actions`. I turned default setup off and added `codeql.yml` (`actions` on ubuntu, Swift via a manual `xcodebuild` build).
+- Tried on the way: autobuild (segfault on `macos-latest`), `build-mode: none` (unsupported for Swift), manual build on an Xcode 27 runner (the tracer broke the macro plugin server: "Bad CPU type in executable"). What fixed it was lowering the project to macOS 26 and using the `macos-26` runner; the Swift CodeQL job then passed (~12 min).
+- Minimum OS lowered from macOS 27 to 26: deployment target 26.0 and project `objectVersion` 77 so Xcode 26 opens it. Checked by building and testing at 26 with Xcode 27's SDK (no macOS 27-only API used); not run on a real macOS 26 machine.
+- The runner label `xcode-27` the user first gave did resolve to a runner with Xcode 27.1; `xcode-26` matched nothing and jobs queued forever, so the default is the standard `macos-26`.
+- Unrelated, seen while doing this: `DiskImageIntegrationTests/realDmg` (real `hdiutil`) failed intermittently on the hosted runner (the `main` push after PR #2 and two runs on this PR); it passed on the latest runs. Not investigated.

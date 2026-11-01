@@ -11,7 +11,7 @@ Workflows live in `.github/workflows/`. Requirements: REQ-TST-6 to REQ-TST-8 in 
 | Package (`package.yml`) | called by the two above | Shared sign, notarize, staple and DMG steps; the only workflow that reads the signing secrets. |
 
 ## Runner
-`RUNNER_LABELS` (repository variable, JSON) picks the runner, for example `["xcode-27"]` or `["self-hosted","macOS"]`. Unit tests and Release default to `xcode-27`. Run UI Tests also takes a `runner_labels` input. Optional variable `XCODE_VERSION` (for example `27.0`) selects `/Applications/Xcode_<version>.app`.
+`RUNNER_LABELS` (repository variable, JSON) picks the runner, for example `["macos-26"]` or `["self-hosted","macOS"]`. Unit tests and Release default to `macos-26`. Run UI Tests also takes a `runner_labels` input. Optional variable `XCODE_VERSION` (for example `27.0`) selects `/Applications/Xcode_<version>.app`.
 
 ## Versioning
 Computed by `scripts/compute-version.sh` from the `vX.Y.Z` git tags (nothing is committed back).
@@ -40,3 +40,6 @@ Download the DMG from the pre-release on the Releases page. Nightlies are never 
 ## Local checks
 - `scripts/tests/compute-version-tests.sh` tests the version rules.
 - `scripts/package-dmg.sh App.app out.dmg` makes a DMG locally.
+
+## CodeQL
+`codeql.yml` replaces GitHub's default setup (which must stay off, or it rejects these uploads). It scans the workflows (`actions`) and the Swift code on every push and PR to `main`, and weekly. Swift has no `build-mode: none`, so it is built with `xcodebuild` on the same runner as the unit tests (`RUNNER_LABELS`, default `macos-26`); that build takes about 12 minutes.

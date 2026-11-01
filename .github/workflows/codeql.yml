@@ -1,0 +1,56 @@
+name: CodeQL
+
+# Replaces GitHub's "default setup" (disable it under Settings > Code security, or it rejects these uploads).
+# Default setup's Swift autobuild segfaulted under CodeQL's tracer (exit 139) and Swift has no build-mode none, so Swift
+# is built manually with xcodebuild on the same runner the unit tests use.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '17 4 * * 1' # Mondays 04:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ${{ fromJSON(matrix.runner) }}
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: actions
+            runner: '["ubuntu-latest"]'
+            build-mode: none
+          - language: swift
+            runner: ${{ vars.RUNNER_LABELS || '["macos-26"]' }}
+            build-mode: manual
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: ${{ matrix.build-mode }}
+
+      - name: Build (Swift)
+        if: ${{ matrix.language == 'swift' }}
+        run: |
+          xcodebuild clean build \
+            -project ArtCraftAppManager.xcodeproj \
+            -scheme ArtCraftAppManager \
+            -destination 'platform=macOS' \
+            -derivedDataPath "$RUNNER_TEMP/derived" \
+            CODE_SIGNING_ALLOWED=NO
+
+      - uses: github/codeql-action/analyze@v4
+        with:
+          category: /language:${{ matrix.language }}
