@@ -28,7 +28,7 @@ permissions:
 
 jobs:
   package:
-    runs-on: ${{ fromJSON(vars.RUNNER_LABELS || '["xcode-26"]') }}
+    runs-on: ${{ fromJSON(vars.RUNNER_LABELS || '["macos-26"]') }}
     outputs:
       version: ${{ steps.version.outputs.version }}
       tag: ${{ steps.version.outputs.tag }}

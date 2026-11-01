@@ -31,7 +31,7 @@ jobs:
             runner: '["ubuntu-latest"]'
             build-mode: none
           - language: swift
-            runner: ${{ vars.RUNNER_LABELS || '["xcode-26"]' }}
+            runner: ${{ vars.RUNNER_LABELS || '["macos-26"]' }}
             build-mode: manual
     steps:
       - uses: actions/checkout@v4

@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   unit-tests:
-    runs-on: ${{ fromJSON(vars.RUNNER_LABELS || '["xcode-26"]') }}
+    runs-on: ${{ fromJSON(vars.RUNNER_LABELS || '["macos-26"]') }}
     steps:
       - uses: actions/checkout@v4
         with:

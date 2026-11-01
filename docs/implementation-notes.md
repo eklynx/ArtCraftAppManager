@@ -102,7 +102,7 @@ Running log of decisions, changes and tradeoffs beyond the README. Dated 2026-10
 
 ## GitHub Actions (build, test, sign/package)
 - Workflows: `unit-tests.yml`, `ui-tests.yml`, `release.yml`; scripts `compute-version.sh`, `package-dmg.sh`, `ExportOptions.plist`; guide in `docs/ci.md`; requirements REQ-TST-6/7 with `WorkflowTests`.
-- Not run for real: signing, notarization and the release job need your Apple secrets, . The default runner label `xcode-26` was given by the user (not checked against GitHub); the jobs are untested until the first run. `actionlint` and `shellcheck` are not installed here, so I only checked that the YAML parses and that the unit suite (including the new workflow tests) passes locally.
+- Not run for real: signing, notarization and the release job need your Apple secrets, . The default runner label `macos-26` was given by the user (not checked against GitHub); the jobs are untested until the first run. `actionlint` and `shellcheck` are not installed here, so I only checked that the YAML parses and that the unit suite (including the new workflow tests) passes locally.
 - There is no separate `ci.yml`: `xcodebuild test` already proves the build compiles.
 - Release is manual (`workflow_dispatch` with a `bump` input) rather than tag-triggered, because versions auto-increment; the workflow creates the tag via `gh release create --target $GITHUB_SHA`.
 - `MARKETING_VERSION` is always plain `X.Y.Z` (a `-timestamp.hash` suffix is invalid in `CFBundleShortVersionString`); the full dev version only names the unsigned artifact from `main` pushes.
@@ -124,6 +124,6 @@ Running log of decisions, changes and tradeoffs beyond the README. Dated 2026-10
 
 ### CodeQL
 - Default setup's Swift job failed (CodeQL tracer segfault, exit 139) and default setup was then narrowed to `actions`. I turned default setup off and added `codeql.yml`.
-- Tried and ruled out for Swift on hosted runners: autobuild (segfault), `build-mode: none` (unsupported for Swift), manual `xcodebuild` on the `xcode-26` runner (tracer breaks the macro plugin server: "Bad CPU type in executable"). Swift is therefore opt-in via the `CODEQL_SWIFT` variable; only `actions` is scanned by default. **Swift code is currently not scanned by CodeQL.**
+- Tried and ruled out for Swift on hosted runners: autobuild (segfault), `build-mode: none` (unsupported for Swift), manual `xcodebuild` on the `macos-26` runner (tracer breaks the macro plugin server: "Bad CPU type in executable"). Swift is therefore opt-in via the `CODEQL_SWIFT` variable; only `actions` is scanned by default. **Swift code is currently not scanned by CodeQL.**
 - Unrelated, seen while doing this: `DiskImageIntegrationTests/realDmg` (real `hdiutil`) fails intermittently on the hosted runner (failed on the `main` push after PR #2 and on this PR; passed on other runs). Not investigated.
 
