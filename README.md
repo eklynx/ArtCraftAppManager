@@ -32,3 +32,6 @@ The unit tests (Swift Testing) are hermetic. The UI tests drive the real app, so
 
 ## License
 MIT — see [`LICENSE`](LICENSE).
+
+## AI Usage Notes
+AI was used heavily in the creation of this application.  I am using projects such as these to determine the best ways for my process to utilize AI tools to come up with clean code efficiently.
