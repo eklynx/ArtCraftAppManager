@@ -77,6 +77,9 @@ struct AppRowView: View {
     let row: AppModel.Row
     @State private var confirmUninstall = false
 
+    /// All row buttons share this width (matches the prototype's equal-width buttons).
+    private static let buttonWidth: CGFloat = 140
+
     private var vm: AppRowModel { model.rowModel(for: row) }
 
     var body: some View {
@@ -145,15 +148,17 @@ struct AppRowView: View {
     @ViewBuilder
     private func slot(_ button: RowButton, _ title: String, _ label: String, action: @escaping () -> Void) -> some View {
         if vm.visibleButtons.contains(button) {
-            Button(title, action: action)
-                .buttonStyle(.bordered).buttonBorderShape(.capsule)
-                .frame(width: 140)
+            Button(action: action) {
+                Text(title).frame(maxWidth: .infinity)  // label fills the button so every button is the same width
+            }
+            .buttonStyle(.bordered).buttonBorderShape(.capsule)
+            .frame(width: Self.buttonWidth)
                 .disabled(!vm.enabledButtons.contains(button))
                 .help(vm.tooltip(for: button) ?? "")
                 .accessibilityLabel(label)
         } else if button != .install {
             // Keep the slot's space so the two button columns stay aligned.
-            Color.clear.frame(width: 140, height: 22)
+            Color.clear.frame(width: Self.buttonWidth, height: 22)
         }
     }
 

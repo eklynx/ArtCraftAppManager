@@ -39,7 +39,7 @@ struct SettingsView: View {
                     .onMove { model.moveApps(from: $0, to: $1) }
                 }
                 .listStyle(.inset)
-                .frame(height: 180)
+                .frame(height: CGFloat(model.orderedApps.count) * 30 + 12)  // tall enough to show every app, no inner scrolling
                 .accessibilityIdentifier("settings.apps.list")
                 HStack {
                     Text("Drag to reorder. This sets the order in the main window.").font(.caption).foregroundStyle(.secondary)
@@ -78,6 +78,7 @@ struct SettingsView: View {
             if Self.isSettingsWindow(note.object) { showsGitHub = false }
         }
         .frame(width: 520)
+        .frame(minHeight: 560, idealHeight: 860, maxHeight: .infinity)  // tall enough to open with every app visible; the form scrolls if the screen is smaller
         .padding(.vertical, 8)
     }
 

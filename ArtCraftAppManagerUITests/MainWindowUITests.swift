@@ -60,6 +60,25 @@ final class MainWindowUITests: XCTestCase {
     }
 
     @MainActor
+    func test_REQ_WIN_21_allRowButtonsHaveTheSameWidth() {
+        let app = launch(arguments: ["-uitest-installed-gridcraft"])
+        let names = ["Run GridCraft", "Open Location for GridCraft", "Uninstall GridCraft"]
+        XCTAssertTrue(app.buttons[names[0]].waitForExistence(timeout: 5))
+        let widths = names.map { app.buttons[$0].frame.width }
+        XCTAssertEqual(Set(widths.map { Int($0.rounded()) }).count, 1, "button widths differ: \(widths)")
+    }
+
+    @MainActor
+    func test_REQ_SET_13_settingsListShowsEveryApp() {
+        let app = launch()
+        app.typeKey(",", modifierFlags: .command)
+        let rows = app.descendants(matching: .any)["settings.apps.list"].cells
+        XCTAssertTrue(rows.firstMatch.waitForExistence(timeout: 5))
+        XCTAssertEqual(rows.count, 14)
+        XCTAssertTrue(rows.element(boundBy: 13).isHittable, "the last app must be visible without scrolling")
+    }
+
+    @MainActor
     func test_REQ_INS_14_uninstallAsksForConfirmation() {
         let app = launch(arguments: ["-uitest-installed-gridcraft"])
         app.buttons["Uninstall GridCraft"].click()

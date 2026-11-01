@@ -53,6 +53,11 @@ Running log of decisions, changes and tradeoffs beyond the README. Dated 2026-10
 - **Drag-and-drop reordering is implemented (`onMove` with a visible handle) but not verified by an automated test**: XCUITest's synthetic drag never triggered the list's move, and I could not tell whether that is the test tool or the app. To guarantee a tested path I added a right-click menu with Move Up / Move Down (also exposed as accessibility actions). This goes slightly beyond the "no on-screen arrows" decision but adds no visible controls. Please try dragging a row by hand (see `docs/manual-verification.md`); if it does not work, tell me and I will fix or drop it.
 - Suite: **131 of 131** with this change.
 
+## UI fixes after first hands-on use
+- Row buttons: the label now fills a fixed-width button (140 pt), so every button is the same width whatever its title (REQ-WIN-21; matches the prototype).
+- Settings app list: the list was only 180 pt tall (inner scroll) and the Settings window opened 450 pt tall, hiding apps. The list now sizes to show every app and the window opens ~860 pt tall (resizable, scrolls on small screens) (REQ-SET-13). A UI test checks the last of 14 apps is hittable.
+- Suite: **132 of 132**.
+
 ## Not done
 - Production adapters written: `URLSessionTransport`, `KeychainTokenProvider`, `BundledRemoteRegistryProvider` (unit-tested through fakes), `URLSessionDownloader`, `FileManagerTrasher`, `WorkspaceLauncher`, `SystemAppLookup` (LaunchServices + `mdfind`), `UserNotificationNotifier`, `WorkspaceQuitObserver`, `SMAppServiceLoginItem`. The system-facing ones are not unit-tested (REQ-TST-3 keeps tests off the real network/Trash/login items); they need the manual checks below.
 - UI built (step 2): `App/AppModel.swift` is the composition root (the only place concrete adapters are named; `ArchitectureTests` bans them from `UI/`). `UI/MainView.swift` (rows follow `ApplicationLine.svg`: two button columns, fixed slots so rows stay aligned), `UI/SettingsView.swift` (+ menu bar content), `ArtCraftAppManagerApp.swift` (`Window` + `Settings` + `MenuBarExtra`, quit-on-last-window per `AppLifecyclePolicy`).
