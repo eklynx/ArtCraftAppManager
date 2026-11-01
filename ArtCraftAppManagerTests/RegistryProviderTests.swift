@@ -41,6 +41,15 @@ struct RegistryProviderTests {
         #expect(await sutC.current() == bundled)
     }
 
+    @Test("REQ-REG-11 the registry refresh sends the GitHub token when one is available")
+    func refreshUsesToken() async throws {
+        let transport = FakeHTTPTransport { _ in (Data(), 404, [:]) }
+        let sut = BundledRemoteRegistryProvider(bundled: bundled, transport: transport, state: InMemoryStateStore(),
+                                                tokens: FakeTokenProvider(value: "ghp_x"))
+        await sut.refresh()
+        #expect(transport.requests.first?.value(forHTTPHeaderField: "Authorization") == "Bearer ghp_x")
+    }
+
     @Test("REQ-REG-1 the registry bundled in the app loads and validates")
     func loadsBundledCopy() throws {
         #expect(try BundledRemoteRegistryProvider.loadBundled().apps.count == 14)

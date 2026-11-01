@@ -6,9 +6,11 @@ final class BundledRemoteRegistryProvider: AppRegistryProviding {
     private let transport: HTTPTransport
     private let state: ManagerStateStoring
     private let remoteURL: URL
+    private let tokens: TokenProviding?
 
     init(bundled: AppRegistry, transport: HTTPTransport, state: ManagerStateStoring,
-         remoteURL: URL = RegistryLocations.remoteURL) {
+         remoteURL: URL = RegistryLocations.remoteURL, tokens: TokenProviding? = nil) {
+        self.tokens = tokens
         self.bundled = bundled
         self.transport = transport
         self.state = state
@@ -28,6 +30,8 @@ final class BundledRemoteRegistryProvider: AppRegistryProviding {
     func refresh() async {
         var request = URLRequest(url: remoteURL)
         request.cachePolicy = .reloadIgnoringLocalCacheData
+        // A GitHub token lets the refresh read a private repository (REQ-REG-11).
+        if let token = tokens?.token() { request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization") }
         guard let (data, response) = try? await transport.send(request), response.statusCode == 200,
               (try? RegistryValidator.validate(data)) != nil else { return }
         var saved = state.load()

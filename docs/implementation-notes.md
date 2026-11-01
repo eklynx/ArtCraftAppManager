@@ -37,6 +37,12 @@ Running log of decisions, changes and tradeoffs beyond the README. Dated 2026-10
 - The Xcode template already used Swift Testing, so no XCTest→Swift Testing switch was needed (earlier note was wrong).
 - Some specs are checked indirectly: `REQ-NOT-7` (no background agent) is a pbxproj grep plus the 6-hour interval; `REQ-ARC-1/2/3/5/7` are source/project scans.
 
+## Findings from a live run
+- A real launch fetched release data for all 14 apps from GitHub (14 ETags stored), so the fetcher/resolver work against the live API.
+- **The repo is currently private, so the remote registry URL (`raw.githubusercontent.com/.../main/docs/registry/apps.json`) returns 404.** The app silently keeps using the bundled registry (by design, REQ-REG-3), so remote refresh does nothing until either the repo is made public (the MIT license suggests that is the intent) or a GitHub token is stored in the Keychain (the registry fetch now sends it, REQ-REG-11; there is no Settings field for the token yet).
+- Test launches (hosted unit tests and `-uitest-*` UI launches) now use an isolated defaults suite and a temp state folder and skip the network, after the first test runs wrote a fake GridCraft entry and notification records into the real `state.json` (deleted; the file is disposable).
+- UI tests drive the real app: keep the mouse and keyboard off while they run.
+
 ## Not done
 - Production adapters written: `URLSessionTransport`, `KeychainTokenProvider`, `BundledRemoteRegistryProvider` (unit-tested through fakes), `URLSessionDownloader`, `FileManagerTrasher`, `WorkspaceLauncher`, `SystemAppLookup` (LaunchServices + `mdfind`), `UserNotificationNotifier`, `WorkspaceQuitObserver`, `SMAppServiceLoginItem`. The system-facing ones are not unit-tested (REQ-TST-3 keeps tests off the real network/Trash/login items); they need the manual checks below.
 - UI built (step 2): `App/AppModel.swift` is the composition root (the only place concrete adapters are named; `ArchitectureTests` bans them from `UI/`). `UI/MainView.swift` (rows follow `ApplicationLine.svg`: two button columns, fixed slots so rows stay aligned), `UI/SettingsView.swift` (+ menu bar content), `ArtCraftAppManagerApp.swift` (`Window` + `Settings` + `MenuBarExtra`, quit-on-last-window per `AppLifecyclePolicy`).

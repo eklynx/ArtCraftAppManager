@@ -50,19 +50,34 @@ final class AppModel {
     private var started = false
     /// UI tests: pretend GitHub is unreachable without touching the network.
     private var forcedOffline = false
+    /// Test launches never touch the network.
+    private let networkDisabled: Bool
 
     init(arguments: [String] = ProcessInfo.processInfo.arguments) {
-        let defaults = UserDefaults.standard
+        // UI-test launches use an isolated defaults suite and state folder so they never touch real data.
+        let isUITest = arguments.contains { $0.hasPrefix("-uitest") }
+        let isTestHost = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+        networkDisabled = isUITest || isTestHost
+        let defaults: UserDefaults
+        let supportDir: URL
+        if isUITest || isTestHost {
+            defaults = UserDefaults(suiteName: "com.eklynx.ArtCraftAppManager.uitest")!
+            defaults.removePersistentDomain(forName: "com.eklynx.ArtCraftAppManager.uitest")
+            supportDir = FileManager.default.temporaryDirectory.appendingPathComponent("acam-uitest-state")
+            try? FileManager.default.removeItem(at: supportDir)
+        } else {
+            defaults = .standard
+            supportDir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+                .appendingPathComponent("ArtCraftAppManager")
+        }
         let settings = UserDefaultsSettingsStore(defaults: defaults)
         store = settings
-        let supportDir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("ArtCraftAppManager")
         state = JSONStateStore(url: supportDir.appendingPathComponent("state.json"))
         transport = URLSessionTransport()
         let bundled = (try? BundledRemoteRegistryProvider.loadBundled())
             ?? AppRegistry(schemaVersion: AppRegistry.supportedSchemaVersion, updated: "", owner: "", apps: [])
         registry = bundled
-        registryProvider = BundledRemoteRegistryProvider(bundled: bundled, transport: transport, state: state)
+        registryProvider = BundledRemoteRegistryProvider(bundled: bundled, transport: transport, state: state, tokens: KeychainTokenProvider())
         fetcher = GitHubReleaseFetcher(transport: transport, tokens: KeychainTokenProvider())
         notifier = UserNotificationNotifier()
         notifications = UpdateNotificationService(notifier: notifier, state: state)
@@ -111,6 +126,7 @@ final class AppModel {
     func refresh() async {
         guard !isChecking else { return }
         if forcedOffline { status.show(.offline); return }
+        if networkDisabled { return }
         isChecking = true
         defer { isChecking = false }
         await registryProvider.refresh()
