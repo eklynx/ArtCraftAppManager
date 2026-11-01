@@ -42,5 +42,4 @@ Download the DMG from the pre-release on the Releases page. Nightlies are never 
 - `scripts/package-dmg.sh App.app out.dmg` makes a DMG locally.
 
 ## CodeQL
-`codeql.yml` replaces GitHub's default setup (which must stay off, or it rejects these uploads). It scans the workflows (`actions`) on every push and PR to `main` and weekly. Swift is opt-in: set the repository variable `CODEQL_SWIFT` to `true`. Swift needs a traced build, and on the hosted runners CodeQL's tracer fails with this project (autobuild segfaults; a manual `xcodebuild` fails with "Bad CPU type in executable" loading Xcode 27's macro plugin server). Swift does not support `build-mode: none`. Try it with `RUNNER_LABELS` pointing at a self-hosted Mac.
-
+`codeql.yml` replaces GitHub's default setup (which must stay off, or it rejects these uploads). It scans the workflows (`actions`) and the Swift code on every push and PR to `main`, and weekly. Swift has no `build-mode: none`, so it is built with `xcodebuild` on the same runner as the unit tests (`RUNNER_LABELS`, default `macos-26`); that build takes about 12 minutes.
