@@ -29,7 +29,7 @@ jobs:
         include:
           - language: actions
             runner: '["ubuntu-latest"]'
-            build-mode: ${{ matrix.build-mode }}
+            build-mode: none
           - language: swift
             runner: ${{ vars.RUNNER_LABELS || '["xcode-27"]' }}
             build-mode: manual
