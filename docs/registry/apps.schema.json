@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "apps.schema.json",
+  "title": "ArtCraft App Registry",
+  "type": "object",
+  "required": ["schemaVersion", "updated", "owner", "apps"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": { "const": 1 },
+    "updated": { "type": "string", "format": "date" },
+    "owner": { "type": "string", "minLength": 1 },
+    "apps": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/app" }
+    }
+  },
+  "$defs": {
+    "app": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "displayName", "repo", "releasesUrl", "apiLatestUrl", "tagPattern", "assetPattern", "checksumAsset", "bundleId", "appBundleName", "iconUrl", "enabledByDefault"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]*$" },
+        "displayName": { "type": "string", "minLength": 1 },
+        "repo": { "type": "string", "pattern": "^[^/]+/[^/]+$" },
+        "releasesUrl": { "type": "string", "format": "uri" },
+        "apiLatestUrl": { "type": "string", "format": "uri" },
+        "tagPattern": { "type": "string", "description": "Regex with a named group 'version'." },
+        "assetPattern": { "type": "string", "description": "Regex with a named group 'version', matching exactly one macOS .dmg asset." },
+        "checksumAsset": { "type": ["string", "null"] },
+        "bundleId": { "type": ["string", "null"], "description": "Null until verified from the shipped app." },
+        "appBundleName": { "type": "string", "pattern": "\\.app$" },
+        "iconUrl": { "type": ["string", "null"], "format": "uri" },
+        "enabledByDefault": { "type": "boolean" }
+      }
+    }
+  }
+}
