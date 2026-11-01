@@ -1,0 +1,44 @@
+name: CodeQL
+
+# Replaces GitHub's "default setup" (disable it under Settings > Code security, or it rejects these uploads).
+# Default setup autobuilt Swift under CodeQL's build tracer, which crashed (exit 139) on the hosted macOS runner.
+# Swift is analyzed from source (build-mode none), so no Xcode 27 build is needed.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '17 4 * * 1' # Mondays 04:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  analyze:
+    name: Analyze (${{ matrix.language }})
+    runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - language: actions
+            runner: ubuntu-latest
+          - language: swift
+            runner: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: none
+
+      - uses: github/codeql-action/analyze@v4
+        with:
+          category: /language:${{ matrix.language }}
