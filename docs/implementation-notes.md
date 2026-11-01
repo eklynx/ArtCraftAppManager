@@ -121,3 +121,9 @@ Running log of decisions, changes and tradeoffs beyond the README. Dated 2026-10
 - Scheduled workflows only run from the default branch, and GitHub disables schedules after 60 days without repo activity.
 - Change (user): a nightly is skipped when `main` is unchanged, judged by comparing the latest `nightly-*` release's `targetCommitish` with the current commit, rather than by commit age. A failed earlier attempt leaves no release, so the next run retries. This applies to manual runs too; they have a `force` input to build anyway (my addition).
 - Change (user): retention is the last 7 nightlies by count, not 7 days, so skipped nights don't shrink the history. The prune step deletes older `nightly-*` releases with `--cleanup-tag`.
+
+### CodeQL
+- Default setup's Swift job failed (CodeQL tracer segfault, exit 139) and default setup was then narrowed to `actions`. I turned default setup off and added `codeql.yml`.
+- Tried and ruled out for Swift on hosted runners: autobuild (segfault), `build-mode: none` (unsupported for Swift), manual `xcodebuild` on the `xcode-27` runner (tracer breaks the macro plugin server: "Bad CPU type in executable"). Swift is therefore opt-in via the `CODEQL_SWIFT` variable; only `actions` is scanned by default. **Swift code is currently not scanned by CodeQL.**
+- Unrelated, seen while doing this: `DiskImageIntegrationTests/realDmg` (real `hdiutil`) fails intermittently on the hosted runner (failed on the `main` push after PR #2 and on this PR; passed on other runs). Not investigated.
+

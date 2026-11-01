@@ -1,8 +1,10 @@
 name: CodeQL
 
 # Replaces GitHub's "default setup" (disable it under Settings > Code security, or it rejects these uploads).
-# Default setup autobuilt Swift on macos-latest, where CodeQL's build tracer crashed (exit 139). Swift does not support
-# build-mode none, so it is built manually with xcodebuild on the same runner the unit tests use (Xcode 27).
+# `actions` always runs. Swift is opt-in (set the repository variable CODEQL_SWIFT=true): it needs a traced build, and on
+# the hosted runners CodeQL's tracer fails with this project (default setup's autobuild segfaulted, exit 139; a manual
+# xcodebuild under the tracer fails with "Bad CPU type in executable" loading Xcode 27's swift-plugin-server, so the
+# @Observable macros cannot expand). Swift does not support build-mode none. Try it on a self-hosted Mac via RUNNER_LABELS.
 on:
   push:
     branches: [main]
@@ -18,6 +20,7 @@ permissions:
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
+    if: ${{ matrix.language != 'swift' || vars.CODEQL_SWIFT == 'true' }}
     runs-on: ${{ fromJSON(matrix.runner) }}
     permissions:
       contents: read
