@@ -38,5 +38,5 @@ Running log of decisions, changes and tradeoffs beyond the README. Dated 2026-10
 - Some specs are checked indirectly: `REQ-NOT-7` (no background agent) is a pbxproj grep plus the 6-hour interval; `REQ-ARC-1/2/3/5/7` are source/project scans.
 
 ## Not done
-- Production adapters are not written: the real `HTTPTransport` (URLSession), `Downloading`, `Trashing` (NSWorkspace/FileManager.trashItem), `AppLaunching`, `QuitObserving` (NSWorkspace), `UpdateNotifying` (UNUserNotificationCenter), `LoginItemControlling` (SMAppService), Keychain `TokenProviding`, `AppRegistryProviding`, and the SwiftUI views (still the template `ContentView`). The logic behind each protocol is implemented and tested against fakes.
+- Production adapters written (step 1): `URLSessionTransport`, `KeychainTokenProvider`, `BundledRemoteRegistryProvider` (unit-tested through fakes), `URLSessionDownloader`, `FileManagerTrasher`, `WorkspaceLauncher`, `SystemAppLookup` (LaunchServices + `mdfind`), `UserNotificationNotifier`, `WorkspaceQuitObserver`, `SMAppServiceLoginItem`. The system-facing ones are not unit-tested (REQ-TST-3 keeps tests off the real network/Trash/login items); they need the manual checks in the test plan. Still to do: the SwiftUI views and the composition root (`AppModel`).
 - `README.md` was left untouched (typos and all); it is currently staged as a rename in git.
