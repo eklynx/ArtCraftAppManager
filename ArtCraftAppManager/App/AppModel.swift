@@ -48,6 +48,8 @@ final class AppModel {
     private var tasks: [String: Task<Void, Never>] = [:]
     private var timer: Task<Void, Never>?
     private var started = false
+    /// UI tests: pretend GitHub is unreachable without touching the network.
+    private var forcedOffline = false
 
     init(arguments: [String] = ProcessInfo.processInfo.arguments) {
         let defaults = UserDefaults.standard
@@ -73,7 +75,7 @@ final class AppModel {
         initialPolicy.setAutoInstall(settings.autoInstall)
         if !settings.autoInstall { initialPolicy.setAutoDownload(settings.autoDownload) }
         policy = initialPolicy
-        launchAtLogin = settings.launchAtLogin
+        launchAtLogin = settings.launchAtLogin || arguments.contains("-uitest-started-by-login-item")
         startedByLoginItem = arguments.contains("-uitest-started-by-login-item") || Self.launchedAsLoginItem()
 
         autoUpdate = AutoUpdateController(installer: makeInstaller(), locator: makeLocator(), notifications: notifications,
@@ -108,6 +110,7 @@ final class AppModel {
 
     func refresh() async {
         guard !isChecking else { return }
+        if forcedOffline { status.show(.offline); return }
         isChecking = true
         defer { isChecking = false }
         await registryProvider.refresh()
@@ -324,7 +327,7 @@ final class AppModel {
     // MARK: UI-test scenarios (launch arguments)
 
     private func applyUITestScenario(_ arguments: [String]) {
-        if arguments.contains("-uitest-offline") { status.show(.offline) }
+        if arguments.contains("-uitest-offline") { forcedOffline = true; status.show(.offline) }
         let prefix = "-uitest-installed-"
         if let flag = arguments.first(where: { $0.hasPrefix(prefix) }),
            let app = registry.apps.first(where: { $0.id == String(flag.dropFirst(prefix.count)) }) {

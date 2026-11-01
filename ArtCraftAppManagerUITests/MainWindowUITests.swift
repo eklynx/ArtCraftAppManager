@@ -8,6 +8,11 @@ import XCTest
 final class MainWindowUITests: XCTestCase {
     override func setUpWithError() throws { continueAfterFailure = false }
 
+    /// macOS static texts expose their string as `value`; fall back to `label`.
+    private func text(of element: XCUIElement) -> String {
+        (element.value as? String).flatMap { $0.isEmpty ? nil : $0 } ?? element.label
+    }
+
     @MainActor
     private func launch(arguments: [String] = []) -> XCUIApplication {
         let app = XCUIApplication()
@@ -20,7 +25,7 @@ final class MainWindowUITests: XCTestCase {
     func test_REQ_WIN_1_listShowsEnabledApps() {
         let app = launch()
         XCTAssertTrue(app.scrollViews["appList"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.otherElements["appRow.gridcraft"].exists)
+        XCTAssertTrue(app.descendants(matching: .any)["appRow.gridcraft"].exists)
     }
 
     @MainActor
@@ -34,7 +39,7 @@ final class MainWindowUITests: XCTestCase {
     func test_REQ_WIN_6_emptyStateWhenNoAppsEnabled() {
         let app = launch(arguments: ["-uitest-no-enabled-apps"])
         XCTAssertTrue(app.staticTexts["emptyState"].waitForExistence(timeout: 5))
-        XCTAssertEqual(app.staticTexts["emptyState"].label, "No applications selected")
+        XCTAssertEqual(text(of: app.staticTexts["emptyState"]), "No applications selected")
     }
 
     @MainActor
@@ -42,7 +47,7 @@ final class MainWindowUITests: XCTestCase {
         let app = launch(arguments: ["-uitest-offline"])
         let status = app.staticTexts["statusLine"]
         XCTAssertTrue(status.waitForExistence(timeout: 5))
-        XCTAssertEqual(status.label, "Can't reach GitHub. Showing last known versions.")
+        XCTAssertEqual(text(of: status), "Can't reach GitHub. Showing last known versions.")
         XCTAssertGreaterThan(status.frame.minY, app.windows.firstMatch.frame.midY)
     }
 
@@ -60,7 +65,8 @@ final class MainWindowUITests: XCTestCase {
         app.buttons["Uninstall GridCraft"].click()
         let sheet = app.sheets.firstMatch
         XCTAssertTrue(sheet.waitForExistence(timeout: 5))
-        XCTAssertTrue(sheet.staticTexts.matching(NSPredicate(format: "label CONTAINS 'preferences are kept'")).count > 0)
+        let kept = NSPredicate(format: "label CONTAINS 'preferences are kept' OR value CONTAINS 'preferences are kept'")
+        XCTAssertTrue(sheet.staticTexts.matching(kept).count > 0)
     }
 
     @MainActor
@@ -76,10 +82,11 @@ final class MainWindowUITests: XCTestCase {
     func test_REQ_SET_4_REQ_SET_7_autoInstallLocksAutoDownload() {
         let app = launch()
         app.typeKey(",", modifierFlags: .command)
-        let install = app.checkBoxes["settings.autoInstall"], download = app.checkBoxes["settings.autoDownload"]
+        let install = app.descendants(matching: .any)["settings.autoInstall"]
+        let download = app.switches["settings.autoDownload"]
         XCTAssertTrue(install.waitForExistence(timeout: 5))
         install.click()
-        XCTAssertEqual(download.value as? Int, 1)
+        XCTAssertEqual("\(download.value ?? "")", "1")
         XCTAssertFalse(download.isEnabled)
     }
 

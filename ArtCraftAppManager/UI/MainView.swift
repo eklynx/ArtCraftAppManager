@@ -9,7 +9,8 @@ struct MainView: View {
         VStack(spacing: 0) {
             if model.rows.isEmpty {
                 VStack(spacing: 12) {
-                    Text("No applications selected").font(.title2).accessibilityIdentifier("emptyState")
+                    Text("No applications selected").font(.title2)
+                        .accessibilityLabel("No applications selected").accessibilityIdentifier("emptyState")
                     SettingsLink { Text("Open Settings") }
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -59,6 +60,7 @@ struct StatusBar: View {
             Text(model.status.text ?? " ")
                 .font(.callout)
                 .lineLimit(1)
+                .accessibilityLabel(model.status.text ?? "")
                 .accessibilityIdentifier("statusLine")
             Spacer()
         }
