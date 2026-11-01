@@ -39,7 +39,7 @@ Running log of decisions, changes and tradeoffs beyond the README. Dated 2026-10
 
 ## Findings from a live run
 - A real launch fetched release data for all 14 apps from GitHub (14 ETags stored), so the fetcher/resolver work against the live API.
-- **The repo is currently private, so the remote registry URL (`raw.githubusercontent.com/.../main/docs/registry/apps.json`) returns 404.** The app silently keeps using the bundled registry (by design, REQ-REG-3), so remote refresh does nothing until either the repo is made public (the MIT license suggests that is the intent) or a GitHub token is stored in the Keychain (the registry fetch now sends it, REQ-REG-11; there is no Settings field for the token yet).
+- **Resolved 2026-11-01: the repo is now public.** It was private during the first live run, so the remote registry URL (`raw.githubusercontent.com/.../main/docs/registry/apps.json`) returned 404 and the app silently used the bundled registry (by design, REQ-REG-3). After the change the URL returns 200 and the remote file is byte-identical to the bundled one (schema 1, 14 apps, with icon URLs), so remote refresh now works. The GitHub token field (REQ-SET-9) is no longer needed for the registry; it still raises the API rate limit for release lookups.
 - Test launches (hosted unit tests and `-uitest-*` UI launches) now use an isolated defaults suite and a temp state folder and skip the network, after the first test runs wrote a fake GridCraft entry and notification records into the real `state.json` (deleted; the file is disposable).
 - UI tests drive the real app: keep the mouse and keyboard off while they run.
 
