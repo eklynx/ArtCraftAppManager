@@ -21,5 +21,14 @@ The settings window has the following options:
 5. Automatically Install Updates: a toggle. When on (this also turns on Automatically Download Updates), if the application is closed, it will automatically install the updated version to the install location for the application. If the application is running, it will trigger a notification that says the update is ready to install but the application is running, and the update is installed as soon as the application quits. When the toggle is off, a notification is sent saying the update is ready to install; it can be installed from the main window once the application is not running.
 6. Launch at login: a toggle (off by default). When on, the Manager starts at login without showing its window and adds a menu bar item showing available updates, with Open Manager, Check Now and Quit. Closing the main window then leaves the Manager running in the menu bar; when off, closing the window quits the Manager.
 
+## Building and testing
+Requires Xcode 27 on macOS 27. Open `ArtCraftAppManager.xcodeproj` and run the `ArtCraftAppManager` scheme, or from the command line:
+
+```sh
+xcodebuild test -project ArtCraftAppManager.xcodeproj -scheme ArtCraftAppManager -destination 'platform=macOS'
+```
+
+The unit tests (Swift Testing) are hermetic. The UI tests drive the real app, so leave the mouse and keyboard alone while they run. Steps that can't be automated are in [`docs/manual-verification.md`](docs/manual-verification.md). The app runs unsandboxed (see [`docs/adr/0001-sandbox-and-install-strategy.md`](docs/adr/0001-sandbox-and-install-strategy.md)).
+
 ## License
 MIT — see [`LICENSE`](LICENSE).
