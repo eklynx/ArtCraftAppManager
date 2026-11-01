@@ -6,6 +6,10 @@
 	objectVersion = 110;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		9BA0E4A1309576E5005AFA92 /* apps.json in Resources */ = {isa = PBXBuildFile; fileRef = 9BA0E4A0309576E5005AFA92 /* apps.json */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		9BA0E479309576E4005AFA92 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -27,6 +31,7 @@
 		9BA0E46B309576E2005AFA92 /* ArtCraftAppManager.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ArtCraftAppManager.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9BA0E478309576E4005AFA92 /* ArtCraftAppManagerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ArtCraftAppManagerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9BA0E482309576E4005AFA92 /* ArtCraftAppManagerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ArtCraftAppManagerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		9BA0E4A0309576E5005AFA92 /* apps.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = apps.json; path = docs/registry/apps.json; sourceTree = SOURCE_ROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -72,6 +77,7 @@
 				9BA0E46D309576E2005AFA92 /* ArtCraftAppManager */,
 				9BA0E47B309576E4005AFA92 /* ArtCraftAppManagerTests */,
 				9BA0E485309576E4005AFA92 /* ArtCraftAppManagerUITests */,
+				9BA0E4A0309576E5005AFA92 /* apps.json */,
 				9BA0E46C309576E2005AFA92 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -197,6 +203,7 @@
 		9BA0E469309576E2005AFA92 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			files = (
+				9BA0E4A1309576E5005AFA92 /* apps.json in Resources */,
 			);
 		};
 		9BA0E476309576E4005AFA92 /* Resources */ = {
@@ -372,7 +379,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = NMX3RG6P6L;
-				ENABLE_APP_SANDBOX = YES;
+				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
@@ -388,7 +395,7 @@
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = nonisolated;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
@@ -404,7 +411,7 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = NMX3RG6P6L;
-				ENABLE_APP_SANDBOX = YES;
+				ENABLE_APP_SANDBOX = NO;
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
@@ -420,7 +427,7 @@
 				REGISTER_APP_GROUPS = YES;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
-				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = nonisolated;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;

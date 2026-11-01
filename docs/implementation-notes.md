@@ -28,6 +28,15 @@ Running log of decisions, changes and tradeoffs beyond the README. Dated 2026-10
 - `iconUrl` is `null`; icons come from the installed app until a source is chosen.
 - No JSON-Schema validation was run (no `jsonschema` available offline); only `jq` syntax checks and pattern-vs-release checks. Schema validation is covered by REQ-TST-4 once the test target exists.
 
+## Tests (written red-first)
+- 104 Swift Testing cases in `ArtCraftAppManagerTests` plus 9 XCUITest smoke tests in `ArtCraftAppManagerUITests`; every one of the 84 `REQ-*` ids is referenced (enforced by `SpecCoverageTests`).
+- To make this possible I added **contract code** to the app target (protocols, models, `ManagerError`, and stubs). Behaviour stubs return harmless defaults so failures are assertions, not crashes. Implemented for real because they are data/catalogue: `ManagerError`, registry models, `ChecksumList`, `UserDefaultsSettingsStore`.
+- Last unit run: **31 pass, 73 fail**. The failures are the intended red phase. The XCUITests compile but were not run (they need the real UI and its accessibility identifiers).
+- **A few passing tests are false greens until real code exists**, because a stub happens to give the expected answer: `REQ-REG-3` unsupported schema, `REQ-REG-5` duplicate ids, `REQ-REG-6` draft/prerelease, `REQ-REG-10` offline, `REQ-INS-10` failed swap, `REQ-SET-2` good folder, `REQ-NOT-4` two matrix rows. Each has a red sibling test that forces the opposite behaviour, so the feature as a whole is still covered.
+- **Project changes needed by the tests**: App Sandbox set to NO (ADR 0001; tests read the repo via `#filePath`), `SWIFT_DEFAULT_ACTOR_ISOLATION` changed from `MainActor` to `nonisolated` for the app target (model/logic code must not be main-actor-bound by default; views are still main-actor via SwiftUI), and `docs/registry/apps.json` added to the app target's Copy Bundle Resources from `SOURCE_ROOT` (REQ-REG-1, REQ-ARC-7).
+- The Xcode template already used Swift Testing, so no XCTest→Swift Testing switch was needed (earlier note was wrong).
+- Some specs are checked indirectly: `REQ-NOT-7` (no background agent) is a pbxproj grep plus the 6-hour interval; `REQ-ARC-1/2/3/5/7` are source/project scans.
+
 ## Not done
-- No Swift code and no test code yet — this pass is specifications, registry and ADRs only. The test target switch to Swift Testing and `SpecCoverageTests` are described in `specs/09-test-plan.md` but not written; the "tests cover specs" rule is therefore pending until implementation.
+- The behaviour behind the contracts is not implemented (red phase). No real UI beyond the template `ContentView`; no `SMAppService`, `NSWorkspace`, Keychain or `hdiutil` code yet (`HdiutilMounter` is a stub).
 - `README.md` was left untouched (typos and all); it is currently staged as a rename in git.

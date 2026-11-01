@@ -2,14 +2,20 @@
 
 ## Strategy
 - **REQ-TST-1** Every `REQ-*` ID in `docs/specs/*.md` MUST be referenced (test name or comment) by at least one test. A test (`SpecCoverageTests`) scans the specs and the test sources and fails on any uncovered ID. IDs marked `(withdrawn)` are exempt.
-- **REQ-TST-2** Unit tests use Swift Testing (`import Testing`) in `ArtCraftAppManagerTests`; the template's XCTest sample is replaced. UI smoke tests use XCUITest in `ArtCraftAppManagerUITests`.
+- **REQ-TST-2** Unit tests use Swift Testing (`import Testing`) in `ArtCraftAppManagerTests` (the Xcode template already uses it; its sample test was removed). UI smoke tests use XCUITest in `ArtCraftAppManagerUITests`.
 - **REQ-TST-3** Tests are hermetic: protocol fakes ([08](08-architecture.md)), temporary folders under `$TMPDIR`, no network, no real Trash.
 - **REQ-TST-4** Registry tests: `apps.json` validates against `apps.schema.json`; ids unique; every `tagPattern`/`assetPattern` compiles and contains a `version` group; each pattern matches the fixture release JSON of its App (fixtures captured from the 14 real latest releases on 2026-10-31).
 - **REQ-TST-5** Install tests use a tiny fixture DMG containing a stub `.app` (created by a script at test setup with `hdiutil`); safe-replace tests inject failures at each step and assert the old App is intact.
 
+## Conventions
+- Swift Testing tests carry requirement IDs in their display name (`@Test("REQ-REG-8 …")`). XCUITest method names cannot contain hyphens, so they use `test_REQ_WIN_1_…`; `SpecCoverageTests` treats `REQ_X_n` as `REQ-X-n`.
+- Contract code (protocols, models, `ManagerError`) lives in the app target by area folder (`Registry/`, `Releases/`, `Detection/`, `Install/`, `Settings/`, `Notifications/`, `State/`, `UI/`). Behaviour not yet implemented is a stub marked `// Red: not implemented yet.` so tests fail by assertion, never by crash.
+- Shared fakes: `ArtCraftAppManagerTests/Support/Fakes.swift`; helpers and fixture paths: `Support/TestSupport.swift`. Tests locate the repo through `#filePath`, so the app and tests run unsandboxed (ADR 0001).
+- UI accessibility identifiers used by XCUITests are listed at the top of `MainWindowUITests.swift` and are part of the UI contract.
+
 ## Fixtures
-- `ArtCraftAppManagerTests/Fixtures/releases/<id>.json` – GitHub release payloads (incl. one with prerelease/draft, one with no macOS asset, one 304).
-- Generated stub DMG; sample `SHA256SUMS.txt` (good and bad).
+- `ArtCraftAppManagerTests/Fixtures/releases/<id>.json` – the 14 real `releases/latest` payloads captured 2026-10-31 (tag, draft, prerelease, asset names/URLs). Draft, prerelease, no-macOS-asset and 304 cases are built in code (`releaseJSON(...)`, `FakeHTTPTransport`).
+- A stub DMG is generated with `hdiutil` at test time (`DiskImageIntegrationTests`); other install tests use `FakeMounter` and temp folders. Checksum lists are built in code.
 
 ## Traceability matrix
 Test names follow `REQ-<AREA>-<n>_<behaviour>`. Level: **U** unit, **I** integration (real filesystem/hdiutil, no network), **UI** XCUITest.
