@@ -18,7 +18,7 @@ permissions:
 jobs:
   analyze:
     name: Analyze (${{ matrix.language }})
-    runs-on: ${{ matrix.language == 'swift' && fromJSON(vars.RUNNER_LABELS || '["xcode-27"]') || matrix.runner }}
+    runs-on: ${{ fromJSON(matrix.runner) }}
     permissions:
       contents: read
       security-events: write
@@ -28,10 +28,10 @@ jobs:
       matrix:
         include:
           - language: actions
-            runner: ubuntu-latest
+            runner: '["ubuntu-latest"]'
             build-mode: ${{ matrix.build-mode }}
           - language: swift
-            runner: xcode-27
+            runner: ${{ vars.RUNNER_LABELS || '["xcode-27"]' }}
             build-mode: manual
     steps:
       - uses: actions/checkout@v4
