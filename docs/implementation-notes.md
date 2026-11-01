@@ -13,6 +13,11 @@ Running log of decisions, changes and tradeoffs beyond the README. Dated 2026-10
 - Pre-releases ignored; never force-quit a running app; install-on-quit for running apps; safe replace with Trash of old copy; uninstall leaves user data.
 - Tests: Swift Testing for unit, XCUITest for smoke; `SpecCoverageTests` enforces that every REQ ID has a test.
 
+## UI decisions (from reviewing `docs/prototypes/ApplicationLine.svg`)
+- The prototype shows one installed row only; the Install, update-available, busy, running, removed-from-registry rows, toolbar, status line and menu bar menu were designed in a grilling round and recorded as REQ-WIN-3/4 and 13–20.
+- **Update button is hidden when there is no update** (REQ-WIN-3). This is explicitly **provisional**: the user wants to try it and may switch to an always-visible greyed-out button. Implement behind a single view-model flag.
+- Install button takes the Uninstall slot so rows keep one shape.
+
 ## Bundle IDs (from GitHub source)
 - 13 Craft apps: `packaging/macos/Info.plist.in` → `ai.storyteller.<id>` (e.g. `ai.storyteller.photocraft`).
 - ArtCraft is a Tauri app with no `Info.plist.in`; its ID is `identifier` in `crates/desktop/artcraft/tauri.conf.json` → `ai.artcraft.app`.
