@@ -21,7 +21,7 @@ struct ArtCraftAppManagerApp: App {
             MenuBarContent().environment(model)
         } label: {
             let count = model.menuBarModel.badgeCount
-            Image(systemName: count > 0 ? "arrow.down.circle.fill" : "arrow.down.circle")
+            Image("MenuBarIcon").renderingMode(.original)  // REQ-WIN-19/26: full-colour icon, not a template
             if count > 0 { Text("\(count)") }
         }
     }

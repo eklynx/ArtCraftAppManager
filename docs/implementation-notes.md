@@ -75,6 +75,13 @@ Running log of decisions, changes and tradeoffs beyond the README. Dated 2026-10
 - **Settings window size**: the `idealHeight` frame was not what sized the window (it opened 608 pt tall after the icons were added, clipping the last app). The Settings scene now uses `.defaultSize(width: 520, height: 940)`. This also explains the earlier "860 pt" fix being fragile.
 - The login-launch UI test that failed in the previous step passed in the latest runs, so it looks flaky rather than broken. Not diagnosed.
 
+## App icon and menu bar icon
+- Source is `docs/prototypes/AppIcon.svg`; `scripts/export-icons.sh` regenerates the committed PNGs (`AppIcon.appiconset` 16–1024 px, `MenuBarIcon.imageset` 18/36 px). REQ-WIN-26 is new; REQ-WIN-19 changed from "template glyph" to full colour (user's choice: full colour, keep the rounded box with transparent corners).
+- **Renderer**: `qlmanage` paints an opaque background, so `scripts/render-svg.swift` renders through `NSImage` (CoreSVG) into a transparent bitmap. CoreSVG ignores SVG filters, so the tile drop shadows are lost and the app icon's body shadow is redrawn with `NSShadow`. The menu bar variant is the same SVG cropped to the rounded box (no shadow).
+- The menu bar label is `Image("MenuBarIcon").renderingMode(.original)`; the update count text still follows it.
+- Small sizes: the four-tile layout is still readable at 18/36 px but the glyphs inside the tiles blur at 16 px; no design change made.
+- The asset files were generated before `AppIconAssetTests` was written, so that test was never red.
+
 ## Manual verification result
 - 2026-11-01: the user ran the full manual checklist (`docs/manual-verification.md`, steps 1–13) and reported that all steps succeeded. That covers the real install/update onto another drive, Gatekeeper, notifications, login item, drag reordering, the row context menu and downloaded icons.
 

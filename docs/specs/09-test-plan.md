@@ -27,7 +27,8 @@ Test names follow `REQ-<AREA>-<n>_<behaviour>`. Level: **U** unit, **I** integra
 | INS | INS-1…4 | U with fake locator |
 | INS | INS-5…8, 10, 12, 13 | I (temp dirs + fixture DMG) |
 | INS | INS-9, 11, 14…17 | U with fakes (running state, trash, concurrency, cancel) |
-| WIN | WIN-1…8, 12…18, 21…25 | UI smoke + U view-model (row-state table per REQ-WIN-3/4/13…16) |
+| WIN | WIN-1…8, 12…18, 21…26 | UI smoke + U view-model (row-state table per REQ-WIN-3/4/13…16) |
+| WIN | WIN-26 | U (asset files: slots, pixel sizes, transparent corners) + manual look |
 | WIN | WIN-9…11, 19, 20 | U (login-item state, menu model) + manual check |
 | SET | SET-1…13 | U (store, validation, toggle coupling); UI for pickers |
 | NOT | NOT-1…8 | U (matrix table-driven, dedupe, quit-observation via fake workspace) |

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Concept: the ArtCraft suite as a 2x2 grid of colourful app tiles; the fourth tile is the "install/update" arrow.
+     Follows the macOS icon grid: 1024 canvas, 824 squircle body inset 100, soft drop shadow. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B3A8F"/>
+      <stop offset="1" stop-color="#1B1A4A"/>
+    </linearGradient>
+    <linearGradient id="coral" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FF8A6B"/><stop offset="1" stop-color="#F0476B"/>
+    </linearGradient>
+    <linearGradient id="amber" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFD66B"/><stop offset="1" stop-color="#FF9F2E"/>
+    </linearGradient>
+    <linearGradient id="teal" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5FE3C7"/><stop offset="1" stop-color="#1FA6B8"/>
+    </linearGradient>
+    <linearGradient id="paper" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#FFFFFF"/><stop offset="1" stop-color="#DCE0F5"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="125%">
+      <feDropShadow dx="0" dy="14" stdDeviation="18" flood-color="#000" flood-opacity="0.35"/>
+    </filter>
+    <filter id="tileShadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="8" stdDeviation="8" flood-color="#000" flood-opacity="0.30"/>
+    </filter>
+  </defs>
+
+  <!-- body -->
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="url(#body)" filter="url(#shadow)"/>
+  <rect x="100" y="100" width="824" height="824" rx="185" fill="none" stroke="#fff" stroke-opacity="0.12" stroke-width="3"/>
+
+  <!-- tiles: 250 px, 36 px gap, centred -->
+  <g filter="url(#tileShadow)">
+    <rect x="244" y="244" width="250" height="250" rx="62" fill="url(#coral)"/>
+    <rect x="530" y="244" width="250" height="250" rx="62" fill="url(#amber)"/>
+    <rect x="244" y="530" width="250" height="250" rx="62" fill="url(#teal)"/>
+    <rect x="530" y="530" width="250" height="250" rx="62" fill="url(#paper)"/>
+  </g>
+
+  <!-- glyphs on the colour tiles: brush stroke, star, pencil-ish diagonal -->
+  <path d="M310 440 C350 330 410 310 440 300" fill="none" stroke="#fff" stroke-opacity="0.9" stroke-width="30" stroke-linecap="round"/>
+  <circle cx="318" cy="438" r="22" fill="#fff" fill-opacity="0.9"/>
+  <path d="M655 318 L674 372 L731 374 L686 408 L702 463 L655 431 L608 463 L624 408 L579 374 L636 372 Z"
+        fill="#fff" fill-opacity="0.92" transform="translate(0 -8)"/>
+  <path d="M318 700 L418 600 L440 622 L340 722 L304 734 Z" fill="#fff" fill-opacity="0.92"/>
+
+  <!-- install arrow on the paper tile -->
+  <g fill="none" stroke="#3B3A8F" stroke-width="34" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M655 584 V690"/>
+    <path d="M612 650 L655 694 L698 650"/>
+    <path d="M608 738 H702"/>
+  </g>
+</svg>
