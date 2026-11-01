@@ -1,3 +1,8 @@
+// SOURCE OF TRUTH (for humans and AI agents): the `Registry` namespace contract.
+// Types: AppRegistryProviding, RegistryApp, AppRegistry, RegistryValidator.
+// Read the doc comments on each protocol (happy path + errors) before calling into this namespace,
+// and the governing spec: docs/specs/02-app-registry.md. Other namespaces MUST go through these protocols.
+
 import Foundation
 
 /// One App entry of docs/registry/apps.json (docs/specs/02-app-registry.md).

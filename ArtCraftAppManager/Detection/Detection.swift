@@ -1,3 +1,8 @@
+// SOURCE OF TRUTH (for humans and AI agents): the `Detection` namespace contract.
+// Types: InstalledAppLocating, InstallResolver, DiskAppLocator.
+// Read the doc comments on each protocol (happy path + errors) before calling into this namespace,
+// and the governing spec: docs/specs/03-install-update.md. Other namespaces MUST go through these protocols.
+
 import Foundation
 
 struct InstalledApp: Equatable {

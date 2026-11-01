@@ -1,3 +1,8 @@
+// SOURCE OF TRUTH (for humans and AI agents): the `Support` namespace contract.
+// Types: ManagerError.
+// Read the doc comments on each protocol (happy path + errors) before calling into this namespace,
+// and the governing spec: docs/specs/07-errors-and-status.md. Other namespaces MUST go through these protocols.
+
 import Foundation
 
 /// Typed failure surfaced to the status line. Catalogue and wording: docs/specs/07-errors-and-status.md.

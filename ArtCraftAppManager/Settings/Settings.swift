@@ -1,3 +1,8 @@
+// SOURCE OF TRUTH (for humans and AI agents): the `Settings` namespace contract.
+// Types: SettingsStoring, LoginItemControlling, UpdatePolicy, FolderValidator.
+// Read the doc comments on each protocol (happy path + errors) before calling into this namespace,
+// and the governing spec: docs/specs/05-settings.md. Other namespaces MUST go through these protocols.
+
 import Foundation
 
 /// Persists user settings (REQ-SET-8).

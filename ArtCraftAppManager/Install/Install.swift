@@ -1,3 +1,8 @@
+// SOURCE OF TRUTH (for humans and AI agents): the `Install` namespace contract.
+// Types: InstallationManaging, DiskImageMounting, Downloading, Trashing, AppLaunching, OperationScheduler.
+// Read the doc comments on each protocol (happy path + errors) before calling into this namespace,
+// and the governing spec: docs/specs/03-install-update.md. Other namespaces MUST go through these protocols.
+
 import CryptoKit
 import Foundation
 

@@ -21,6 +21,7 @@ ArtCraftAppManager/
 - **REQ-ARC-4** The state file `~/Library/Application Support/ArtCraftAppManager/state.json` holds recorded install paths, last-seen versions, notified versions (REQ-NOT-3), ETags and the cached registry. It is disposable: deleting it MUST NOT lose user settings (they are in `UserDefaults`) and detection rebuilds the rest.
 - **REQ-ARC-5** **App Sandbox is disabled** ([ADR 0001](../adr/0001-sandbox-and-install-strategy.md)): the Manager must write to arbitrary volumes, mount DMGs and replace apps. The target is signed with Developer ID or ad-hoc; Hardened Runtime on.
 - **REQ-ARC-6** Long operations are `async` and cancellable; UI state changes occur on the main actor.
+- **REQ-ARC-8** Every file that declares a namespace protocol starts with a `SOURCE OF TRUTH` header comment naming the namespace, its types and the governing spec, so agents treat it as the reference for that namespace.
 - **REQ-ARC-7** The registry's bundled copy is added to the app target as a resource from `docs/registry/apps.json` (single source; no duplicate file).
 
 ## Protocol sketches (informative)

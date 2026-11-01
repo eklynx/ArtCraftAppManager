@@ -41,6 +41,13 @@ struct ArchitectureTests {
         for p in protocols { #expect(tests.contains(": \(p)"), "no test fake conforms to \(p)") }
     }
 
+    @Test("REQ-ARC-8 every file declaring a protocol starts with a SOURCE OF TRUTH header")
+    func sourceOfTruthHeaders() {
+        for file in appFiles where text(file).contains("\nprotocol ") || text(file).hasPrefix("protocol ") {
+            #expect(text(file).hasPrefix("// SOURCE OF TRUTH"), "\(file.lastPathComponent) lacks the header")
+        }
+    }
+
     @Test("REQ-ARC-5 App Sandbox is off and Hardened Runtime is on (ADR 0001)")
     func sandboxOff() {
         let pbx = text(Repo.pbxproj)

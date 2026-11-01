@@ -1,3 +1,8 @@
+// SOURCE OF TRUTH (for humans and AI agents): the `Notifications` namespace contract.
+// Types: UpdateNotifying, QuitObserving, StatusReporting, UpdatePlanner, AutoUpdateController.
+// Read the doc comments on each protocol (happy path + errors) before calling into this namespace,
+// and the governing spec: docs/specs/06-notifications.md. Other namespaces MUST go through these protocols.
+
 import Foundation
 
 enum NotificationKind: String, Equatable {

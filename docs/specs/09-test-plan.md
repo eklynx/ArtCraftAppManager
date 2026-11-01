@@ -32,7 +32,7 @@ Test names follow `REQ-<AREA>-<n>_<behaviour>`. Level: **U** unit, **I** integra
 | SET | SET-1…8 | U (store, validation, toggle coupling); UI for pickers |
 | NOT | NOT-1…8 | U (matrix table-driven, dedupe, quit-observation via fake workspace) |
 | ERR | ERR-1…3 | U (every code has text; per-App isolation) |
-| ARC | ARC-1…7 | U/I (state file rebuild, resource present); ARC-1/2/5 verified by review checklist test (protocol docs contain "Happy path"/"Errors") |
+| ARC | ARC-1…8 | U/I (state file rebuild, resource present); ARC-1/2/5 verified by review checklist test (protocol docs contain "Happy path"/"Errors") |
 | TST | TST-1…5 | `SpecCoverageTests` and registry tests |
 
 Manual checks (cannot be automated hermetically): Gatekeeper first-launch of an installed App; real Login Item approval flow; a live update of one real App on an external volume.

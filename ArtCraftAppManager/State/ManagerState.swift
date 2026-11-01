@@ -1,3 +1,8 @@
+// SOURCE OF TRUTH (for humans and AI agents): the `State` namespace contract.
+// Types: ManagerStateStoring, ManagerState.
+// Read the doc comments on each protocol (happy path + errors) before calling into this namespace,
+// and the governing spec: docs/specs/08-architecture.md (REQ-ARC-4). Other namespaces MUST go through these protocols.
+
 import Foundation
 
 struct ManagerState: Codable, Equatable {

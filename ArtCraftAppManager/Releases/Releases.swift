@@ -1,3 +1,8 @@
+// SOURCE OF TRUTH (for humans and AI agents): the `Releases` namespace contract.
+// Types: ReleaseFetching, HTTPTransport, TokenProviding, AppVersion, ReleaseResolver, UpdateCoordinator.
+// Read the doc comments on each protocol (happy path + errors) before calling into this namespace,
+// and the governing spec: docs/specs/02-app-registry.md. Other namespaces MUST go through these protocols.
+
 import Foundation
 
 /// Dotted numeric version, compared per component (REQ-REG-8).

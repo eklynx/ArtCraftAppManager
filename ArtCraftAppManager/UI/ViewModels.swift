@@ -1,3 +1,8 @@
+// SOURCE OF TRUTH (for humans and AI agents): the `UI` namespace contract.
+// Types: AppRowModel, MenuBarModel, StatusLine, MainWindowModel, AppLifecyclePolicy.
+// Read the doc comments on each protocol (happy path + errors) before calling into this namespace,
+// and the governing spec: docs/specs/04-main-window.md. Other namespaces MUST go through these protocols.
+
 import Foundation
 
 enum RowButton: Equatable, Hashable {
