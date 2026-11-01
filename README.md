@@ -20,3 +20,6 @@ The settings window has the following options:
 4. Automatically Download Updates: a toggle. When on, it will automatically download updates to the download location. When off, if an updated version is detected, a notification will be triggered. Clicking on the notification will activate this application to show the option to update.
 5. Automatically Install Updates: a toggle. When on (this also turns on Automatically Download Updates), if the application is closed, it will automatically install the updated version to the install location for the application. If the application is running, it will trigger a notification that says the update is ready to install but the application is running, and the update is installed as soon as the application quits. When the toggle is off, a notification is sent saying the update is ready to install; it can be installed from the main window once the application is not running.
 6. Launch at login: a toggle (off by default). When on, the Manager starts at login without showing its window and adds a menu bar item showing available updates, with Open Manager, Check Now and Quit. Closing the main window then leaves the Manager running in the menu bar; when off, closing the window quits the Manager.
+
+## License
+MIT — see [`LICENSE`](LICENSE).
