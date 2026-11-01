@@ -1,0 +1,352 @@
+import AppKit
+import Foundation
+import Observation
+
+/// Composition root and observable app state. Wires the concrete adapters behind the module protocols
+/// (REQ-ARC-1); the SwiftUI layer only talks to this type.
+@MainActor @Observable
+final class AppModel {
+    struct Row: Identifiable {
+        var id: String
+        var name: String
+        var app: RegistryApp?
+        var installed: InstalledApp?
+        var available: Release?
+        var isRunning = false
+        var inRegistry = true
+    }
+
+    // MARK: Observable state
+    private(set) var registry: AppRegistry
+    private(set) var rows: [Row] = []
+    private(set) var progress: [String: Double] = [:]
+    private(set) var status = StatusLine()
+    private(set) var isChecking = false
+    var scrollTarget: String?
+    let startedByLoginItem: Bool
+
+    // MARK: Settings (mirrored so SwiftUI observes them)
+    var defaultInstallLocation: URL { didSet { store.defaultInstallLocation = defaultInstallLocation } }
+    var downloadLocation: URL { didSet { store.downloadLocation = downloadLocation } }
+    private(set) var enabledIds: Set<String>
+    private(set) var policy: UpdatePolicy
+    private(set) var launchAtLogin: Bool
+
+    // MARK: Collaborators
+    private let store: SettingsStoring
+    private let state: ManagerStateStoring
+    private let transport: HTTPTransport
+    private let registryProvider: AppRegistryProviding
+    private let fetcher: ReleaseFetching
+    private let scheduler = OperationScheduler()
+    private let notifier: UserNotificationNotifier
+    private let notifications: UpdateNotificationService
+    private let loginItem: SettingsController
+    private let actions = AppActions(launcher: WorkspaceLauncher())
+    private var autoUpdate: AutoUpdateController!
+    private var latest: [String: Release] = [:]
+    private var tasks: [String: Task<Void, Never>] = [:]
+    private var timer: Task<Void, Never>?
+    private var started = false
+
+    init(arguments: [String] = ProcessInfo.processInfo.arguments) {
+        let defaults = UserDefaults.standard
+        let settings = UserDefaultsSettingsStore(defaults: defaults)
+        store = settings
+        let supportDir = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
+            .appendingPathComponent("ArtCraftAppManager")
+        state = JSONStateStore(url: supportDir.appendingPathComponent("state.json"))
+        transport = URLSessionTransport()
+        let bundled = (try? BundledRemoteRegistryProvider.loadBundled())
+            ?? AppRegistry(schemaVersion: AppRegistry.supportedSchemaVersion, updated: "", owner: "", apps: [])
+        registry = bundled
+        registryProvider = BundledRemoteRegistryProvider(bundled: bundled, transport: transport, state: state)
+        fetcher = GitHubReleaseFetcher(transport: transport, tokens: KeychainTokenProvider())
+        notifier = UserNotificationNotifier()
+        notifications = UpdateNotificationService(notifier: notifier, state: state)
+        loginItem = SettingsController(store: settings, loginItem: SMAppServiceLoginItem())
+
+        defaultInstallLocation = settings.defaultInstallLocation
+        downloadLocation = settings.downloadLocation
+        enabledIds = arguments.contains("-uitest-no-enabled-apps") ? [] : settings.enabledIds(in: bundled)
+        var initialPolicy = UpdatePolicy()
+        initialPolicy.setAutoInstall(settings.autoInstall)
+        if !settings.autoInstall { initialPolicy.setAutoDownload(settings.autoDownload) }
+        policy = initialPolicy
+        launchAtLogin = settings.launchAtLogin
+        startedByLoginItem = arguments.contains("-uitest-started-by-login-item") || Self.launchedAsLoginItem()
+
+        autoUpdate = AutoUpdateController(installer: makeInstaller(), locator: makeLocator(), notifications: notifications,
+                                          quitObserver: WorkspaceQuitObserver(), reporter: ModelReporter(self))
+        notifier.onClick = { [weak self] id in self?.reveal(id) }
+        applyUITestScenario(arguments)
+        rebuildRows()
+    }
+
+    private static func launchedAsLoginItem() -> Bool {
+        guard let event = NSAppleEventManager.shared().currentAppleEvent else { return false }
+        return event.eventID == AEEventID(kAEOpenApplication)
+            && event.paramDescriptor(forKeyword: AEKeyword(keyAEPropData))?.enumCodeValue == OSType(keyAELaunchedAsLogInItem)
+    }
+
+    // MARK: Lifecycle
+
+    func start() async {
+        guard !started else { return }
+        started = true
+        await notifications.start()
+        await refresh()
+        timer = Task { [weak self] in
+            while !Task.isCancelled {
+                try? await Task.sleep(for: .seconds(UpdateCoordinator.interval))
+                await self?.refresh()
+            }
+        }
+    }
+
+    // MARK: Update checks (REQ-REG-12)
+
+    func refresh() async {
+        guard !isChecking else { return }
+        isChecking = true
+        defer { isChecking = false }
+        await registryProvider.refresh()
+        registry = await registryProvider.current()
+        var saved = state.load()
+        var failure: ManagerError?
+        for app in registry.apps where enabledIds.contains(app.id) {
+            do {
+                let etag = latest[app.id] == nil ? nil : saved.etags[app.id]
+                switch try await fetcher.latestRelease(for: app, etag: etag) {
+                case .release(let release, let newTag):
+                    latest[app.id] = release
+                    saved.etags[app.id] = newTag
+                case .notModified:
+                    break
+                }
+            } catch let error as ManagerError {
+                failure = failure ?? error
+                if case .rateLimited = error { break }
+            } catch {}
+        }
+        try? state.save(saved)
+        rebuildRows()
+        if let failure { status.show(failure) } else { status.operationSucceeded(); noteDuplicates() }
+        await applyAutoUpdates()
+    }
+
+    private func applyAutoUpdates() async {
+        for row in rows {
+            guard let app = row.app, let installed = row.installed, let release = row.available,
+                  release.version > installed.version else { continue }
+            await autoUpdate.handleNewRelease(app: app, installed: installed, release: release, policy: policy,
+                                              windowVisible: NSApp.windows.contains { $0.isVisible })
+        }
+        rebuildRows()
+    }
+
+    // MARK: Row building
+
+    func rebuildRows() {
+        let locator = makeLocator()
+        let recorded = state.load().recordedPaths
+        let window = MainWindowModel()
+        window.setRows(registry: registry, enabled: enabledIds, removedFromRegistry: [])
+        var built: [Row] = window.rowIds.compactMap { id in
+            guard let app = registry.apps.first(where: { $0.id == id }) else { return nil }
+            let resolved = InstallResolver.resolve(copies: locator.installedCopies(of: app),
+                                                   recordedPath: recorded[id].map { URL(fileURLWithPath: $0) })
+            return Row(id: id, name: app.displayName, app: app, installed: resolved?.shown, available: latest[id],
+                       isRunning: resolved.map { locator.isRunning($0.shown) } ?? false)
+        }
+        // Installed apps that left the registry stay listed (REQ-REG-4).
+        for (id, path) in recorded where !registry.apps.contains(where: { $0.id == id }) {
+            let url = URL(fileURLWithPath: path)
+            guard let info = DiskAppLocator.readInfo(at: url) else { continue }
+            let installed = InstalledApp(appId: id, bundleId: info.bundleId, url: url, version: info.version)
+            built.append(Row(id: id, name: id, app: nil, installed: installed, isRunning: locator.isRunning(installed), inRegistry: false))
+        }
+        rows = built
+    }
+
+    private func noteDuplicates() {
+        let locator = makeLocator()
+        let recorded = state.load().recordedPaths
+        for app in registry.apps where enabledIds.contains(app.id) {
+            if let resolved = InstallResolver.resolve(copies: locator.installedCopies(of: app),
+                                                      recordedPath: recorded[app.id].map { URL(fileURLWithPath: $0) }),
+               let other = resolved.others.first {
+                status.show(.duplicateCopy(app: app.displayName, path: other.url.path))
+                return
+            }
+        }
+    }
+
+    func rowModel(for row: Row) -> AppRowModel {
+        AppRowModel(name: row.name, installed: row.installed, available: row.available, isRunning: row.isRunning,
+                    progress: progress[row.id], inRegistry: row.inRegistry)
+    }
+
+    var menuBarModel: MenuBarModel {
+        MenuBarModel(entries: rows.compactMap { row in
+            guard row.inRegistry, let installed = row.installed, let available = row.available?.version,
+                  available > installed.version else { return nil }
+            return .init(appId: row.id, name: row.name, installed: installed.version, available: available)
+        })
+    }
+
+    // MARK: User actions
+
+    func install(_ row: Row, to folder: URL) {
+        guard let app = row.app, let release = latest[row.id] else { status.show(.releaseUnusable(app: row.name)); return }
+        runOperation(row.id) { [self] in
+            let installed = try await makeInstaller().install(release, app: app, to: folder) { [weak self] value in
+                Task { @MainActor in self?.progress[row.id] = value }
+            }
+            record(installed)
+        }
+    }
+
+    func update(_ row: Row) {
+        guard let app = row.app, let installed = row.installed, let release = row.available else { return }
+        if row.isRunning { status.show(.appRunning(app: row.name, operation: .update)); return }
+        runOperation(row.id) { [self] in
+            let updated = try await makeInstaller().update(installed, app: app, to: release) { [weak self] value in
+                Task { @MainActor in self?.progress[row.id] = value }
+            }
+            record(updated)
+        }
+    }
+
+    func uninstall(_ row: Row) {
+        guard let app = row.app ?? registry.apps.first(where: { $0.id == row.id }) ?? stubApp(row), let installed = row.installed else { return }
+        if row.isRunning { status.show(.appRunning(app: row.name, operation: .uninstall)); return }
+        runOperation(row.id) { [self] in
+            try await makeInstaller().uninstall(installed, app: app)
+            var saved = state.load()
+            saved.recordedPaths[row.id] = nil
+            try? state.save(saved)
+        }
+    }
+
+    func run(_ row: Row) { row.installed.map(actions.run) }
+    func openLocation(_ row: Row) { row.installed.map(actions.openLocation) }
+    func cancel(_ row: Row) { tasks[row.id]?.cancel() }
+
+    func clearStatus() { status.tapped() }
+
+    func reveal(_ appId: String) {
+        scrollTarget = notifications.rowToReveal(forClickedNotificationOf: appId)
+    }
+
+    private func runOperation(_ id: String, _ work: @escaping () async throws -> Void) {
+        progress[id] = 0
+        tasks[id] = Task { [weak self] in
+            do {
+                try await self?.scheduler.run(appId: id, isDownload: true, work: work)
+                self?.status.operationSucceeded()
+            } catch let error as ManagerError {
+                self?.status.show(error)
+            } catch {}
+            self?.progress[id] = nil
+            self?.tasks[id] = nil
+            self?.rebuildRows()
+        }
+    }
+
+    private func record(_ installed: InstalledApp) {
+        var saved = state.load()
+        saved.recordedPaths[installed.appId] = installed.url.path
+        saved.lastSeenVersions[installed.appId] = installed.version.description
+        try? state.save(saved)
+    }
+
+    private func stubApp(_ row: Row) -> RegistryApp? { nil }
+
+    // MARK: Settings changes
+
+    func setEnabled(_ id: String, _ on: Bool) {
+        if on { enabledIds.insert(id) } else { enabledIds.remove(id) }
+        store.enabledAppIds = enabledIds
+        rebuildRows()
+    }
+
+    func setAutoDownload(_ on: Bool) {
+        policy.setAutoDownload(on)
+        store.autoDownload = policy.autoDownload
+    }
+
+    func setAutoInstall(_ on: Bool) {
+        policy.setAutoInstall(on)
+        store.autoInstall = policy.autoInstall
+        store.autoDownload = policy.autoDownload
+    }
+
+    func setLaunchAtLogin(_ on: Bool) {
+        if let error = loginItem.setLaunchAtLogin(on) { status.show(error) }
+        launchAtLogin = store.launchAtLogin
+    }
+
+    /// Validates and applies a folder picked in Settings (REQ-SET-2).
+    func chooseFolder(_ folder: URL, forInstall: Bool) {
+        do {
+            try FolderValidator.validate(folder)
+            if forInstall { defaultInstallLocation = folder } else { downloadLocation = folder }
+        } catch let error as ManagerError {
+            status.show(error)
+        } catch {}
+    }
+
+    // MARK: Factories
+
+    private func makeLocator() -> DiskAppLocator {
+        DiskAppLocator(searchFolders: [defaultInstallLocation, URL(fileURLWithPath: "/Applications")],
+                       recordedPaths: state.load().recordedPaths.mapValues { URL(fileURLWithPath: $0) },
+                       bundleIDLookup: SystemAppLookup.urls(forBundleID:),
+                       runningBundleIDs: SystemAppLookup.runningBundleIDs)
+    }
+
+    private func makeInstaller() -> DiskInstaller {
+        let transport = self.transport
+        return DiskInstaller(downloader: URLSessionDownloader(), mounter: HdiutilMounter(), trasher: FileManagerTrasher(),
+                             locator: makeLocator(), downloadFolder: downloadLocation,
+                             checksumText: { release in
+                                 guard let url = release.checksumURL else { return nil }
+                                 guard let (data, response) = try? await transport.send(URLRequest(url: url)) else { throw ManagerError.offline }
+                                 return response.statusCode == 200 ? String(decoding: data, as: UTF8.self) : nil
+                             })
+    }
+
+    fileprivate func report(_ error: ManagerError) { status.show(error) }
+    fileprivate var hasAttentionBadge = false
+    fileprivate func setBadge(_ on: Bool) { hasAttentionBadge = on }
+
+    // MARK: UI-test scenarios (launch arguments)
+
+    private func applyUITestScenario(_ arguments: [String]) {
+        if arguments.contains("-uitest-offline") { status.show(.offline) }
+        let prefix = "-uitest-installed-"
+        if let flag = arguments.first(where: { $0.hasPrefix(prefix) }),
+           let app = registry.apps.first(where: { $0.id == String(flag.dropFirst(prefix.count)) }) {
+            let folder = FileManager.default.temporaryDirectory.appendingPathComponent("acam-uitest")
+            try? FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+            let bundle = folder.appendingPathComponent(app.appBundleName)
+            let contents = bundle.appendingPathComponent("Contents")
+            try? FileManager.default.createDirectory(at: contents, withIntermediateDirectories: true)
+            let plist: NSDictionary = ["CFBundleIdentifier": app.bundleId ?? "x", "CFBundleShortVersionString": "0.1.0"]
+            plist.write(to: contents.appendingPathComponent("Info.plist"), atomically: true)
+            var saved = state.load()
+            saved.recordedPaths[app.id] = bundle.path
+            try? state.save(saved)
+            enabledIds.insert(app.id)
+        }
+    }
+}
+
+/// Bridges the nonisolated `StatusReporting` protocol to the main-actor model.
+private final class ModelReporter: StatusReporting, @unchecked Sendable {
+    private weak var model: AppModel?
+    init(_ model: AppModel) { self.model = model }
+    func show(_ error: ManagerError) { Task { @MainActor in model?.report(error) } }
+    func setAttentionBadge(_ on: Bool) { Task { @MainActor in model?.setBadge(on) } }
+}
