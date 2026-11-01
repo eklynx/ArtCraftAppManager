@@ -103,7 +103,7 @@ final class FakeLoginItem: LoginItemControlling {
 }
 
 final class FakeInstaller: InstallationManaging {
-    private(set) var installs = 0, updates = 0
+    private(set) var installs = 0, updates = 0, downloads = 0
     var failure: ManagerError?
     var result: InstalledApp
     init(result: InstalledApp) { self.result = result }
@@ -118,6 +118,10 @@ final class FakeInstaller: InstallationManaging {
         return result
     }
     func uninstall(_ installed: InstalledApp, app: RegistryApp) async throws {}
+    func download(_ release: Release, app: RegistryApp, progress: @escaping (Double) -> Void) async throws {
+        downloads += 1
+        if let failure { throw failure }
+    }
 }
 
 final class InMemoryStateStore: ManagerStateStoring {

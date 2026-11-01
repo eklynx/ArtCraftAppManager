@@ -15,57 +15,109 @@ struct AppRowModel {
     var inRegistry = true
     var hidesUpdateWhenCurrent = true
 
-    var versionText: String { "" /* Red: not implemented yet. */ }
-    var pathText: String { "" /* Red: not implemented yet. */ }
-    var visibleButtons: [RowButton] { [] /* Red: not implemented yet. */ }
-    var enabledButtons: Set<RowButton> { [] /* Red: not implemented yet. */ }
-    var showsRunningLabel: Bool { false /* Red: not implemented yet. */ }
-    var showsProgressBar: Bool { false /* Red: not implemented yet. */ }
-    var registryNote: String? { nil /* Red: not implemented yet. */ }
-    func tooltip(for button: RowButton) -> String? { nil /* Red: not implemented yet. */ }
+    private var updateAvailable: Bool {
+        guard inRegistry, let installed, let available else { return false }
+        return available.version > installed.version
+    }
+
+    var versionText: String {
+        guard let installed else { return "" }
+        let base = "Ver: \(installed.version)"
+        return updateAvailable ? "\(base) → \(available!.version)" : base
+    }
+
+    var pathText: String {
+        installed.map { $0.url.deletingLastPathComponent().path } ?? "Not installed"
+    }
+
+    var visibleButtons: [RowButton] {
+        if let progress { return progress < 1 ? [.cancel] : [] }
+        guard installed != nil else { return [.install] }
+        var buttons: [RowButton] = [.uninstall]
+        if updateAvailable || (inRegistry && !hidesUpdateWhenCurrent) { buttons.append(.update) }
+        buttons += [.run, .openLocation]
+        return buttons
+    }
+
+    var enabledButtons: Set<RowButton> {
+        if progress != nil { return Set(visibleButtons) }
+        guard installed != nil else { return [.install] }
+        var enabled: Set<RowButton> = [.run, .openLocation]
+        if !isRunning {
+            enabled.insert(.uninstall)
+            if updateAvailable { enabled.insert(.update) }
+        }
+        return enabled
+    }
+
+    var showsRunningLabel: Bool { isRunning && installed != nil }
+    var showsProgressBar: Bool { progress != nil }
+    var registryNote: String? { inRegistry ? nil : "No longer in registry" }
+
+    func tooltip(for button: RowButton) -> String? {
+        guard isRunning else { return nil }
+        switch button {
+        case .update: return "Quit \(name) to update"
+        case .uninstall: return "Quit \(name) to uninstall"
+        default: return nil
+        }
+    }
 }
 
 struct MenuBarModel {
     struct Entry: Equatable { var appId: String; var name: String; var installed: AppVersion; var available: AppVersion }
     var entries: [Entry]
 
-    var badgeCount: Int { 0 /* Red: not implemented yet. */ }
-    var lines: [String] { [] /* Red: not implemented yet. */ }
-    static var fixedItems: [String] { [] /* Red: not implemented yet. */ }
-    func rowToScroll(forLine index: Int) -> String? { nil /* Red: not implemented yet. */ }
+    var badgeCount: Int { entries.count }
+    var lines: [String] { entries.map { "\($0.name) \($0.installed) → \($0.available)" } }
+    static var fixedItems: [String] { ["Check Now", "Open Manager", "Quit"] }
+
+    func rowToScroll(forLine index: Int) -> String? {
+        entries.indices.contains(index) ? entries[index].appId : nil
+    }
 }
 
 struct StatusLine: Equatable {
     private(set) var text: String?
 
-    mutating func show(_ error: ManagerError) { /* Red: not implemented yet. */ }
+    mutating func show(_ error: ManagerError) {
+        if let message = error.statusText { text = message }
+    }
+
     /// Cleared on the next successful operation (REQ-WIN-7).
-    mutating func operationSucceeded() { /* Red: not implemented yet. */ }
-    mutating func tapped() { /* Red: not implemented yet. */ }
+    mutating func operationSucceeded() { text = nil }
+    mutating func tapped() { text = nil }
 }
 
 final class MainWindowModel {
     private(set) var rowIds: [String] = []
     private(set) var isChecking = false
     private(set) var status = StatusLine()
-    var showsEmptyState: Bool { false /* Red: not implemented yet. */ }
+    var showsEmptyState: Bool { rowIds.isEmpty }
 
     /// Rows: enabled registry apps in registry order, then installed apps removed from the registry (REQ-WIN-1).
     func setRows(registry: AppRegistry, enabled: Set<String>, removedFromRegistry: [String]) {
-        // Red: not implemented yet.
+        rowIds = registry.apps.map(\.id).filter(enabled.contains) + removedFromRegistry
     }
 
     /// Runs a check; spinner while it runs (REQ-WIN-5); on failure keeps rows and shows the error (REQ-WIN-8).
     func refresh(using check: () async throws -> Void) async {
-        // Red: not implemented yet.
+        isChecking = true
+        defer { isChecking = false }
+        do {
+            try await check()
+            status.operationSucceeded()
+        } catch let error as ManagerError {
+            status.show(error)
+        } catch {}
     }
 }
 
 enum AppLifecyclePolicy {
     /// REQ-WIN-10
-    static func quitsWhenLastWindowCloses(launchAtLogin: Bool) -> Bool { true /* Red: not implemented yet. */ }
+    static func quitsWhenLastWindowCloses(launchAtLogin: Bool) -> Bool { !launchAtLogin }
     /// REQ-WIN-11
-    static func showsWindowOnLaunch(startedByLoginItem: Bool) -> Bool { true /* Red: not implemented yet. */ }
+    static func showsWindowOnLaunch(startedByLoginItem: Bool) -> Bool { !startedByLoginItem }
     /// REQ-WIN-9
-    static func hasMenuBarItem(launchAtLogin: Bool) -> Bool { true /* Red: not implemented yet. */ }
+    static func hasMenuBarItem(launchAtLogin: Bool) -> Bool { launchAtLogin }
 }

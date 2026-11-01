@@ -23,11 +23,16 @@ final class JSONStateStore: ManagerStateStoring {
     init(url: URL) { self.url = url }
 
     func load() -> ManagerState {
-        // Red: not implemented yet.
-        ManagerState()
+        guard let data = try? Data(contentsOf: url), let state = try? JSONDecoder().decode(ManagerState.self, from: data) else {
+            return ManagerState()
+        }
+        return state
     }
 
     func save(_ state: ManagerState) throws {
-        // Red: not implemented yet.
+        try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
+        try encoder.encode(state).write(to: url, options: .atomic)
     }
 }

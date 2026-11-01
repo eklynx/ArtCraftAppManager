@@ -55,15 +55,15 @@ struct UpdatePolicy: Equatable {
     var autoDownload = false
     var autoInstall = false
     /// True while Auto Install forces Auto Download on.
-    var isAutoDownloadLocked: Bool { false /* Red: not implemented yet. */ }
+    var isAutoDownloadLocked: Bool { autoInstall }
 
     mutating func setAutoInstall(_ on: Bool) {
-        // Red: not implemented yet.
         autoInstall = on
+        if on { autoDownload = true }
     }
 
     mutating func setAutoDownload(_ on: Bool) {
-        // Red: not implemented yet.
+        guard !isAutoDownloadLocked else { return }
         autoDownload = on
     }
 }
@@ -71,7 +71,13 @@ struct UpdatePolicy: Equatable {
 enum FolderValidator {
     /// - Throws: `.folderMissing` if the folder does not exist, `.permissionDenied` if it is not writable (REQ-SET-2).
     static func validate(_ folder: URL) throws {
-        // Red: not implemented yet.
+        var isDirectory: ObjCBool = false
+        guard FileManager.default.fileExists(atPath: folder.path, isDirectory: &isDirectory), isDirectory.boolValue else {
+            throw ManagerError.folderMissing(folder: folder.path)
+        }
+        guard FileManager.default.isWritableFile(atPath: folder.path) else {
+            throw ManagerError.permissionDenied(folder: folder.path)
+        }
     }
 }
 
@@ -96,7 +102,14 @@ final class SettingsController {
     /// Sets Launch at login; on failure the stored value reverts and `.loginItemFailed` is returned (REQ-SET-6).
     @discardableResult
     func setLaunchAtLogin(_ on: Bool) -> ManagerError? {
-        // Red: not implemented yet.
-        nil
+        let previous = store.launchAtLogin
+        do {
+            try loginItem.setEnabled(on)
+            store.launchAtLogin = on
+            return nil
+        } catch {
+            store.launchAtLogin = previous
+            return .loginItemFailed
+        }
     }
 }

@@ -33,7 +33,8 @@ struct DetectionTests {
         let folder = try makeTempDir("known")
         let bundle = try makeStubApp(in: folder, version: "0.11.0")
         let noId = makeApp(bundleId: nil)
-        #expect(locator(folders: [folder]).installedCopies(of: noId).map(\.url) == [bundle])
+        // Compare paths: URL equality is sensitive to a trailing slash once the directory exists.
+        #expect(locator(folders: [folder]).installedCopies(of: noId).map(\.url.path) == [bundle.path])
     }
 
     @Test("REQ-INS-3 prefers the recorded path, else the highest version")

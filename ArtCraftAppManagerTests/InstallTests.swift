@@ -39,7 +39,7 @@ struct InstallTests {
     func happyInstall() async throws {
         let rig = try InstallRig()
         let installed = try await rig.installer.install(rig.release, app: rig.app, to: rig.installFolder) { _ in }
-        #expect(installed.url == rig.target)
+        #expect(installed.url.path == rig.target.path)
         #expect(installedVersion(at: rig.target) == "0.15.0")
         #expect(rig.mounter.unmounted == [rig.mountPoint])
         #expect(rig.dmgs().isEmpty)  // REQ-INS-12
