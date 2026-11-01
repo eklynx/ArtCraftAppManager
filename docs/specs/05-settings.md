@@ -11,6 +11,7 @@ Settings live in a standard macOS Settings window (⌘,) and are persisted in `U
 | 5 | Automatically Install Updates | `autoInstall` | bool | off |
 | 6 | Launch at login | `launchAtLogin` | bool | off |
 | 7 | GitHub token (optional) | Keychain item, not `UserDefaults` | secret string | none |
+| 8 | App order | `appOrder` | list of registry `id` | none (= registry order) |
 
 ## Requirements
 - **REQ-SET-1** Items 1 and 2 show the current path and a **Choose…** button opening a folder picker.
@@ -21,4 +22,7 @@ Settings live in a standard macOS Settings window (⌘,) and are persisted in `U
 - **REQ-SET-6** **Launch at login** registers/unregisters with `SMAppService.mainApp`. If registration fails (or needs approval in System Settings), the toggle reverts and the status line explains.
 - **REQ-SET-7** Changes take effect immediately; there is no Save button.
 - **REQ-SET-9** An optional **GitHub token** field is an advanced setting: the GitHub section appears only if the Option key is held when Settings is activated (e.g. Option-click the toolbar Settings button or the app menu's Settings item), stays visible until that Settings window closes, and is otherwise hidden. It is a secure text field (`settings.githubToken`) that stores the token in the Keychain, never in `UserDefaults` or the state file. It raises the API rate limit and lets the registry refresh read a private repository (REQ-REG-11). Clearing the field removes the Keychain item. The token is never shown in the status line or logs.
+- **REQ-SET-10** The *App order* chosen in the Settings list is the order of rows in the main window and of lines in the menu bar menu. Apps missing from the saved order (e.g. newly added to the registry) go at the end in registry order; ids in the saved order that left the registry are ignored; installed Apps that left the registry still come after all others (REQ-REG-4). The Settings list shows every App, checked or not; an unchecked App keeps its place, and the main window shows only the checked ones in the App order. If the order equals the registry order it is stored as unset.
+- **REQ-SET-11** Rows in the Settings Apps list are reordered by dragging. Each row also has a right-click (context) menu with "Move Up" and "Move Down", and exposes the same as accessibility actions; there are no on-screen arrow buttons.
+- **REQ-SET-12** A **Reset Order** button (`settings.apps.resetOrder`) under the list clears the App order back to the registry order; it is disabled while the order is already the default.
 - **REQ-SET-8** Settings access goes through the `SettingsStoring` protocol ([08](08-architecture.md)).

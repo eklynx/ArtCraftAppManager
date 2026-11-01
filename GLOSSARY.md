@@ -20,6 +20,8 @@
 
 **Update**: A Release whose version is strictly newer than the installed copy's. States: _available_ (found), _downloaded_ (disk image present and verified), _ready_ (downloaded and waiting for install).
 
+**App order**: The user's chosen order of Apps. It sets the order of rows in the main window and of lines in the menu bar menu; the default is the Registry's order.
+
 **Enabled App**: An App ticked in Settings and therefore shown in the main window.
 
 **Launch at login**: Setting that starts the Manager at login without showing its window and adds a menu bar item.

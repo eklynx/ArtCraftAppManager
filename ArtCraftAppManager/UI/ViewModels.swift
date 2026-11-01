@@ -100,9 +100,9 @@ final class MainWindowModel {
     private(set) var status = StatusLine()
     var showsEmptyState: Bool { rowIds.isEmpty }
 
-    /// Rows: enabled registry apps in registry order, then installed apps removed from the registry (REQ-WIN-1).
-    func setRows(registry: AppRegistry, enabled: Set<String>, removedFromRegistry: [String]) {
-        rowIds = registry.apps.map(\.id).filter(enabled.contains) + removedFromRegistry
+    /// Rows: enabled registry apps in the App order (registry order by default), then installed apps removed from the registry (REQ-WIN-1).
+    func setRows(registry: AppRegistry, enabled: Set<String>, removedFromRegistry: [String], order: [String]? = nil) {
+        rowIds = AppOrder.ordered(registry.apps, saved: order).map(\.id).filter(enabled.contains) + removedFromRegistry
     }
 
     /// Runs a check; spinner while it runs (REQ-WIN-5); on failure keeps rows and shows the error (REQ-WIN-8).

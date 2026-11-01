@@ -153,4 +153,5 @@ final class InMemorySettings: SettingsStoring {
     var autoDownload = false
     var autoInstall = false
     var launchAtLogin = false
+    var appOrder: [String]?
 }

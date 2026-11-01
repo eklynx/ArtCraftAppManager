@@ -91,6 +91,26 @@ final class MainWindowUITests: XCTestCase {
     }
 
     @MainActor
+    func test_REQ_SET_11_REQ_SET_12_contextMenuReordersAndResetRestoresTheDefault() {
+        let app = launch()
+        app.typeKey(",", modifierFlags: .command)
+        let reset = app.buttons["settings.apps.resetOrder"]
+        XCTAssertTrue(reset.waitForExistence(timeout: 5))
+        XCTAssertFalse(reset.isEnabled, "Reset Order is disabled while the order is the default")
+
+        let rows = app.descendants(matching: .any)["settings.apps.list"].cells
+        XCTAssertTrue(rows.firstMatch.waitForExistence(timeout: 5))
+        rows.element(boundBy: 0).rightClick()
+        app.menuItems["Move Down"].click()
+        XCTAssertTrue(reset.isEnabled, "moving a row changes the App order")
+
+        reset.click()
+        XCTAssertFalse(reset.isEnabled)
+    }
+
+    // Dragging a row (REQ-SET-11) is checked by hand: XCUITest's synthetic drag is not recognised by the list.
+
+    @MainActor
     func test_REQ_SET_4_REQ_SET_7_autoInstallLocksAutoDownload() {
         let app = launch()
         app.typeKey(",", modifierFlags: .command)

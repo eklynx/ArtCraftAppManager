@@ -18,13 +18,36 @@ struct SettingsView: View {
                 }
             }
             Section("Applications to Show") {
-                List(model.registry.apps) { app in
-                    Toggle(isOn: Binding(get: { model.enabledIds.contains(app.id) }, set: { model.setEnabled(app.id, $0) })) {
-                        Text(app.displayName)
+                List {
+                    ForEach(model.orderedApps) { app in
+                        HStack {
+                            Toggle(isOn: Binding(get: { model.enabledIds.contains(app.id) }, set: { model.setEnabled(app.id, $0) })) {
+                                Text(app.displayName)
+                            }
+                            Spacer()
+                            Image(systemName: "line.3.horizontal")  // drag handle
+                                .foregroundStyle(.secondary)
+                                .accessibilityHidden(true)
+                        }
+                        .contextMenu {
+                            Button("Move Up") { model.moveApp(app.id, by: -1) }
+                            Button("Move Down") { model.moveApp(app.id, by: 1) }
+                        }
+                        .accessibilityAction(named: "Move Up") { model.moveApp(app.id, by: -1) }
+                        .accessibilityAction(named: "Move Down") { model.moveApp(app.id, by: 1) }
                     }
+                    .onMove { model.moveApps(from: $0, to: $1) }
                 }
+                .listStyle(.inset)
                 .frame(height: 180)
                 .accessibilityIdentifier("settings.apps.list")
+                HStack {
+                    Text("Drag to reorder. This sets the order in the main window.").font(.caption).foregroundStyle(.secondary)
+                    Spacer()
+                    Button("Reset Order") { model.resetOrder() }
+                        .disabled(model.isDefaultOrder)
+                        .accessibilityIdentifier("settings.apps.resetOrder")
+                }
             }
             Section("Updates") {
                 Toggle("Automatically Download Updates", isOn: Binding(get: { model.policy.autoDownload }, set: model.setAutoDownload))

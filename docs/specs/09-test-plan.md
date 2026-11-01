@@ -29,7 +29,7 @@ Test names follow `REQ-<AREA>-<n>_<behaviour>`. Level: **U** unit, **I** integra
 | INS | INS-9, 11, 14…17 | U with fakes (running state, trash, concurrency, cancel) |
 | WIN | WIN-1…8, 12…18 | UI smoke + U view-model (row-state table per REQ-WIN-3/4/13…16) |
 | WIN | WIN-9…11, 19, 20 | U (login-item state, menu model) + manual check |
-| SET | SET-1…9 | U (store, validation, toggle coupling); UI for pickers |
+| SET | SET-1…12 | U (store, validation, toggle coupling); UI for pickers |
 | NOT | NOT-1…8 | U (matrix table-driven, dedupe, quit-observation via fake workspace) |
 | ERR | ERR-1…3 | U (every code has text; per-App isolation) |
 | ARC | ARC-1…8 | U/I (state file rebuild, resource present); ARC-1/2/5 verified by review checklist test (protocol docs contain "Happy path"/"Errors") |

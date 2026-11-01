@@ -3,7 +3,7 @@
 Prototype: [`../prototypes/ApplicationLine.svg`](../prototypes/ApplicationLine.svg) (900×100 row).
 
 ## List
-- **REQ-WIN-1** The window lists the Apps that are enabled in Settings, in registry order, plus installed Apps that left the registry (REQ-REG-4).
+- **REQ-WIN-1** The window lists the Apps that are enabled in Settings, in the user's App order (registry order by default, REQ-SET-10), plus installed Apps that left the registry (REQ-REG-4).
 - **REQ-WIN-2** Each row shows: App icon (installed app's icon, else `iconUrl`, else fallback glyph), name, `Ver: x.y.z` (installed version), and the install path. Not-installed rows show "Not installed" in place of version and path.
 - **REQ-WIN-3** Installed rows have buttons: **Run**, **Open Location**, **Uninstall** and **Update**. The Update button is **hidden** when no update is available (REQ-REG-8), leaving its slot empty. When an update is available it is shown, enabled unless the App is running (REQ-WIN-15). *Provisional:* the user may prefer an always-visible, greyed-out Update button after trying the app (see [implementation notes](../implementation-notes.md)); keep this behaviour in one view-model flag (`hidesUpdateWhenCurrent`) so the change is a one-line switch.
 - **REQ-WIN-4** Not-installed rows keep the same size and layout. The path line reads "Not installed", and a single **Install** button sits in the Uninstall slot (top of the left button column); the other slots are empty.
@@ -30,7 +30,7 @@ Prototype: [`../prototypes/ApplicationLine.svg`](../prototypes/ApplicationLine.s
 - **REQ-WIN-18** A standard macOS toolbar above the list has **Refresh** (REQ-WIN-5) and **Settings**. The status line (REQ-WIN-7) is a thin plain-text bar pinned to the bottom.
 
 ## Menu bar menu
-- **REQ-WIN-19** The menu bar icon (REQ-WIN-9) is a template glyph with a count badge when updates are available. The menu lists one line per App with an update (e.g. "GridCraft 0.14.2 → 0.15.0"), then **Check Now**, **Open Manager**, **Quit**.
+- **REQ-WIN-19** The menu bar icon (REQ-WIN-9) is a template glyph with a count badge when updates are available. The menu lists one line per App with an update, in the App order, (e.g. "GridCraft 0.14.2 → 0.15.0"), then **Check Now**, **Open Manager**, **Quit**.
 - **REQ-WIN-20** Clicking an App line opens the Manager scrolled to that App's row.
 
 ## Accessibility

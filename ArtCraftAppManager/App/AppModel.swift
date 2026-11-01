@@ -31,6 +31,7 @@ final class AppModel {
     private(set) var enabledIds: Set<String>
     private(set) var policy: UpdatePolicy
     private(set) var launchAtLogin: Bool
+    private(set) var appOrder: [String]?
     private let tokenStore = KeychainTokenProvider()
     /// Optional GitHub token, kept in the Keychain (REQ-SET-9).
     var githubToken: String { didSet { tokenStore.save(githubToken) } }
@@ -93,6 +94,7 @@ final class AppModel {
         initialPolicy.setAutoInstall(settings.autoInstall)
         if !settings.autoInstall { initialPolicy.setAutoDownload(settings.autoDownload) }
         policy = initialPolicy
+        appOrder = settings.appOrder
         githubToken = isUITest || isTestHost ? "" : (KeychainTokenProvider().token() ?? "")
         launchAtLogin = settings.launchAtLogin || arguments.contains("-uitest-started-by-login-item")
         startedByLoginItem = arguments.contains("-uitest-started-by-login-item") || Self.launchedAsLoginItem()
@@ -174,7 +176,7 @@ final class AppModel {
         let locator = makeLocator()
         let recorded = state.load().recordedPaths
         let window = MainWindowModel()
-        window.setRows(registry: registry, enabled: enabledIds, removedFromRegistry: [])
+        window.setRows(registry: registry, enabled: enabledIds, removedFromRegistry: [], order: appOrder)
         var built: [Row] = window.rowIds.compactMap { id in
             guard let app = registry.apps.first(where: { $0.id == id }) else { return nil }
             let resolved = InstallResolver.resolve(copies: locator.installedCopies(of: app),
@@ -291,6 +293,26 @@ final class AppModel {
     func setEnabled(_ id: String, _ on: Bool) {
         if on { enabledIds.insert(id) } else { enabledIds.remove(id) }
         store.enabledAppIds = enabledIds
+        rebuildRows()
+    }
+
+    /// All registry apps in the App order, for the Settings list (REQ-SET-10).
+    var orderedApps: [RegistryApp] { AppOrder.ordered(registry.apps, saved: appOrder) }
+    var isDefaultOrder: Bool { orderedApps.map(\.id) == registry.apps.map(\.id) }
+
+    func moveApps(from offsets: IndexSet, to destination: Int) {
+        applyOrder(AppOrder.moved(orderedApps.map(\.id), fromOffsets: offsets, toOffset: destination))
+    }
+
+    func moveApp(_ id: String, by delta: Int) {
+        applyOrder(AppOrder.shifted(orderedApps.map(\.id), id: id, by: delta))
+    }
+
+    func resetOrder() { applyOrder(registry.apps.map(\.id)) }
+
+    private func applyOrder(_ ids: [String]) {
+        appOrder = AppOrder.storable(ids, registry: registry.apps)
+        store.appOrder = appOrder
         rebuildRows()
     }
 
