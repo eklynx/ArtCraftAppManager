@@ -43,6 +43,10 @@ Running log of decisions, changes and tradeoffs beyond the README. Dated 2026-10
 - Test launches (hosted unit tests and `-uitest-*` UI launches) now use an isolated defaults suite and a temp state folder and skip the network, after the first test runs wrote a fake GridCraft entry and notification records into the real `state.json` (deleted; the file is disposable).
 - UI tests drive the real app: keep the mouse and keyboard off while they run.
 
+## GitHub token setting
+- Added REQ-SET-9 (not in the README): an optional GitHub token in Settings, stored in the Keychain via `KeychainTokenProvider`. Used for release lookups and for the registry refresh, so a private repo works. Test launches never read or write the real Keychain item. The Keychain access itself is only checked manually (there is no hermetic test for it).
+- Suite is now **119 of 119** (110 unit + 10 UI) with this change.
+
 ## Not done
 - Production adapters written: `URLSessionTransport`, `KeychainTokenProvider`, `BundledRemoteRegistryProvider` (unit-tested through fakes), `URLSessionDownloader`, `FileManagerTrasher`, `WorkspaceLauncher`, `SystemAppLookup` (LaunchServices + `mdfind`), `UserNotificationNotifier`, `WorkspaceQuitObserver`, `SMAppServiceLoginItem`. The system-facing ones are not unit-tested (REQ-TST-3 keeps tests off the real network/Trash/login items); they need the manual checks below.
 - UI built (step 2): `App/AppModel.swift` is the composition root (the only place concrete adapters are named; `ArchitectureTests` bans them from `UI/`). `UI/MainView.swift` (rows follow `ApplicationLine.svg`: two button columns, fixed slots so rows stay aligned), `UI/SettingsView.swift` (+ menu bar content), `ArtCraftAppManagerApp.swift` (`Window` + `Settings` + `MenuBarExtra`, quit-on-last-window per `AppLifecyclePolicy`).

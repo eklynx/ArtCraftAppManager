@@ -79,6 +79,13 @@ final class MainWindowUITests: XCTestCase {
     }
 
     @MainActor
+    func test_REQ_SET_9_githubTokenFieldIsSecure() {
+        let app = launch()
+        app.typeKey(",", modifierFlags: .command)
+        XCTAssertTrue(app.secureTextFields["settings.githubToken"].waitForExistence(timeout: 5))
+    }
+
+    @MainActor
     func test_REQ_SET_4_REQ_SET_7_autoInstallLocksAutoDownload() {
         let app = launch()
         app.typeKey(",", modifierFlags: .command)

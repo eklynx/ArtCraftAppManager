@@ -31,6 +31,12 @@ struct SettingsView: View {
                 Toggle("Automatically Install Updates", isOn: Binding(get: { model.policy.autoInstall }, set: model.setAutoInstall))
                     .accessibilityIdentifier("settings.autoInstall")
             }
+            Section("GitHub") {
+                SecureField("Token (optional)", text: Bindable(model).githubToken)
+                    .accessibilityIdentifier("settings.githubToken")
+                Text("A token raises GitHub's rate limit and lets the registry refresh read a private repository. It is stored in your Keychain.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
             Section("General") {
                 Toggle("Launch at login", isOn: Binding(get: { model.launchAtLogin }, set: model.setLaunchAtLogin))
                     .accessibilityIdentifier("settings.launchAtLogin")

@@ -31,6 +31,9 @@ final class AppModel {
     private(set) var enabledIds: Set<String>
     private(set) var policy: UpdatePolicy
     private(set) var launchAtLogin: Bool
+    private let tokenStore = KeychainTokenProvider()
+    /// Optional GitHub token, kept in the Keychain (REQ-SET-9).
+    var githubToken: String { didSet { tokenStore.save(githubToken) } }
 
     // MARK: Collaborators
     private let store: SettingsStoring
@@ -90,6 +93,7 @@ final class AppModel {
         initialPolicy.setAutoInstall(settings.autoInstall)
         if !settings.autoInstall { initialPolicy.setAutoDownload(settings.autoDownload) }
         policy = initialPolicy
+        githubToken = isUITest || isTestHost ? "" : (KeychainTokenProvider().token() ?? "")
         launchAtLogin = settings.launchAtLogin || arguments.contains("-uitest-started-by-login-item")
         startedByLoginItem = arguments.contains("-uitest-started-by-login-item") || Self.launchedAsLoginItem()
 

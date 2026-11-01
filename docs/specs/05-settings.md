@@ -10,6 +10,7 @@ Settings live in a standard macOS Settings window (⌘,) and are persisted in `U
 | 4 | Automatically Download Updates | `autoDownload` | bool | off |
 | 5 | Automatically Install Updates | `autoInstall` | bool | off |
 | 6 | Launch at login | `launchAtLogin` | bool | off |
+| 7 | GitHub token (optional) | Keychain item, not `UserDefaults` | secret string | none |
 
 ## Requirements
 - **REQ-SET-1** Items 1 and 2 show the current path and a **Choose…** button opening a folder picker.
@@ -19,4 +20,5 @@ Settings live in a standard macOS Settings window (⌘,) and are persisted in `U
 - **REQ-SET-5** Behaviour of the toggles is the matrix in [06](06-notifications.md).
 - **REQ-SET-6** **Launch at login** registers/unregisters with `SMAppService.mainApp`. If registration fails (or needs approval in System Settings), the toggle reverts and the status line explains.
 - **REQ-SET-7** Changes take effect immediately; there is no Save button.
+- **REQ-SET-9** An optional **GitHub token** field (secure text, `settings.githubToken`) stores the token in the Keychain, never in `UserDefaults` or the state file. It raises the API rate limit and lets the registry refresh read a private repository (REQ-REG-11). Clearing the field removes the Keychain item. The token is never shown in the status line or logs.
 - **REQ-SET-8** Settings access goes through the `SettingsStoring` protocol ([08](08-architecture.md)).
