@@ -99,3 +99,23 @@ Running log of decisions, changes and tradeoffs beyond the README. Dated 2026-10
 - macOS exposes static-text strings as `value` (not `label`) to XCUITest, and settings `Toggle`s as `switches`; the UI tests account for both.
 - **Manual checks (all since passed, see "Manual verification result")** (cannot be automated hermetically): a real install/update of one app onto an external volume; Gatekeeper first launch; notification permission prompt and click-through; real login-item approval and the login-launch detection (`NSAppleEventManager` `keyAELaunchedAsLogInItem` is best-effort); Spotlight/LaunchServices detection of an app on an external volume.
 - `README.md` was left untouched (typos and all); it is currently staged as a rename in git.
+
+## GitHub Actions (build, test, sign/package)
+- Workflows: `unit-tests.yml`, `ui-tests.yml`, `release.yml`; scripts `compute-version.sh`, `package-dmg.sh`, `ExportOptions.plist`; guide in `docs/ci.md`; requirements REQ-TST-6/7 with `WorkflowTests`.
+- Not run for real: signing, notarization and the release job need your Apple secrets, . The default runner label `xcode-27` was given by the user (not checked against GitHub); the jobs are untested until the first run. `actionlint` and `shellcheck` are not installed here, so I only checked that the YAML parses and that the unit suite (including the new workflow tests) passes locally.
+- There is no separate `ci.yml`: `xcodebuild test` already proves the build compiles.
+- Release is manual (`workflow_dispatch` with a `bump` input) rather than tag-triggered, because versions auto-increment; the workflow creates the tag via `gh release create --target $GITHUB_SHA`.
+- `MARKETING_VERSION` is always plain `X.Y.Z` (a `-timestamp.hash` suffix is invalid in `CFBundleShortVersionString`); the full dev version only names the unsigned artifact from `main` pushes.
+- Unit Tests on `main` pushes also upload an unsigned app zip; PRs never build it, and only Release references secrets (checked by `WorkflowTests`).
+- Run UI Tests falls back to `["self-hosted","macOS"]` when neither the input nor `RUNNER_LABELS` is set, so it never lands on a hosted runner by accident.
+- Signing uses command-line overrides (manual, Developer ID Application, team `NMX3RG6P6L` hard-coded, also in `ExportOptions.plist`); the project file keeps automatic signing for local builds. The DMG is signed, notarized and stapled; the app inside is signed and hardened by the archive/export step.
+- `XCODE_VERSION` selects `/Applications/Xcode_<version>.app`, which is the hosted-runner layout; a self-hosted Mac should leave it unset and use `xcode-select`.
+- The README line about `README.md` being "staged as a rename" above is stale history; I only added a CI sentence to it.
+
+### Nightly build
+- `nightly.yml` (03:00 UTC + manual) builds a fully signed, notarized, stapled DMG with the dev version and publishes it as a GitHub **pre-release** (`--prerelease --latest=false`) tagged `nightly-<version>`. The signing steps moved out of `release.yml` into the reusable `package.yml`; Release now has `unit-tests`, `package`, `publish` jobs.
+- The first version of this was a workflow artifact with 7-day retention; the user corrected it to a pre-release. Retention is now a prune step in the same workflow (deletes `nightly-*` releases older than 7 days with `--cleanup-tag`); the artifact between jobs lives 1 day.
+- `compute-version.sh dev` now also prints `tag=nightly-<version>`. These tags don't match the `vX.Y.Z` filter, so they never affect release numbering.
+- My addition, not requested: scheduled runs skip nights with no commit in the last 25 hours (manual runs always build).
+- Added the glossary term **Nightly build** so it isn't confused with a Manager release.
+- Scheduled workflows only run from the default branch, and GitHub disables schedules after 60 days without repo activity.

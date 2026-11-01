@@ -1,0 +1,42 @@
+name: Run UI Tests
+
+# The UI tests drive the real app, so they need a logged-in GUI session: run them on a self-hosted Mac.
+# Manual only; not part of push/PR checks or release gating.
+on:
+  workflow_dispatch:
+    inputs:
+      runner_labels:
+        description: 'Runner labels as JSON, e.g. ["self-hosted","macOS"]. Empty uses the RUNNER_LABELS variable.'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  ui-tests:
+    runs-on: ${{ fromJSON(inputs.runner_labels || vars.RUNNER_LABELS || '["self-hosted","macOS"]') }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode
+        if: ${{ vars.XCODE_VERSION != '' }}
+        run: sudo xcode-select -s "/Applications/Xcode_${{ vars.XCODE_VERSION }}.app"
+
+      - name: Run UI tests
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -project ArtCraftAppManager.xcodeproj \
+            -scheme ArtCraftAppManager \
+            -destination 'platform=macOS' \
+            -only-testing:ArtCraftAppManagerUITests \
+            -derivedDataPath "$RUNNER_TEMP/derived" \
+            -resultBundlePath "$RUNNER_TEMP/ui-tests.xcresult"
+
+      - name: Upload test results
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-tests.xcresult
+          path: ${{ runner.temp }}/ui-tests.xcresult

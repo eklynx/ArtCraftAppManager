@@ -1,0 +1,71 @@
+name: Run Unit Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  unit-tests:
+    runs-on: ${{ fromJSON(vars.RUNNER_LABELS || '["xcode-27"]') }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Select Xcode
+        if: ${{ vars.XCODE_VERSION != '' }}
+        run: sudo xcode-select -s "/Applications/Xcode_${{ vars.XCODE_VERSION }}.app"
+
+      - name: Run unit tests
+        run: |
+          set -o pipefail
+          xcodebuild test \
+            -project ArtCraftAppManager.xcodeproj \
+            -scheme ArtCraftAppManager \
+            -destination 'platform=macOS' \
+            -only-testing:ArtCraftAppManagerTests \
+            -derivedDataPath "$RUNNER_TEMP/derived" \
+            -resultBundlePath "$RUNNER_TEMP/unit-tests.xcresult" \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Upload test results
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-tests.xcresult
+          path: ${{ runner.temp }}/unit-tests.xcresult
+
+      # Traceable build of main; unsigned, never notarized. Signing secrets are release-only.
+      - name: Compute version
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        id: version
+        run: scripts/compute-version.sh dev >> "$GITHUB_OUTPUT"
+
+      - name: Build unsigned app
+        if: ${{ steps.version.outcome == 'success' }}
+        run: |
+          xcodebuild build \
+            -project ArtCraftAppManager.xcodeproj \
+            -scheme ArtCraftAppManager \
+            -configuration Release \
+            -destination 'platform=macOS' \
+            -derivedDataPath "$RUNNER_TEMP/derived" \
+            MARKETING_VERSION='${{ steps.version.outputs.marketing_version }}' \
+            CURRENT_PROJECT_VERSION='${{ github.run_number }}' \
+            CODE_SIGNING_ALLOWED=NO
+          ditto -c -k --keepParent "$RUNNER_TEMP/derived/Build/Products/Release/ArtCraftAppManager.app" \
+            "$RUNNER_TEMP/ArtCraftAppManager-${{ steps.version.outputs.version }}-unsigned.zip"
+
+      - name: Upload unsigned build
+        if: ${{ steps.version.outcome == 'success' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ArtCraftAppManager-${{ steps.version.outputs.version }}-unsigned
+          path: ${{ runner.temp }}/ArtCraftAppManager-${{ steps.version.outputs.version }}-unsigned.zip

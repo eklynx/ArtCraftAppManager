@@ -1,0 +1,134 @@
+name: Package (internal)
+
+# Reusable: builds, Developer ID signs, notarizes and staples a DMG, then uploads it (with its .sha256) as an artifact.
+# Called by release.yml (kind: release) and nightly.yml (kind: nightly). Not meant to be run directly.
+on:
+  workflow_call:
+    inputs:
+      kind:
+        description: release (X.Y.Z from the bump) or nightly (X.Y.Z-timestamp.hash)
+        type: string
+        required: true
+      bump:
+        type: string
+        default: patch
+      retention-days:
+        type: number
+        default: 1
+    outputs:
+      version:
+        value: ${{ jobs.package.outputs.version }}
+      tag:
+        value: ${{ jobs.package.outputs.tag }}
+      artifact:
+        value: ${{ jobs.package.outputs.artifact }}
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ${{ fromJSON(vars.RUNNER_LABELS || '["xcode-27"]') }}
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.tag }}
+      artifact: ${{ steps.name.outputs.artifact }}
+    env:
+      KEYCHAIN: ${{ github.workspace }}/../release-signing.keychain-db
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Select Xcode
+        if: ${{ vars.XCODE_VERSION != '' }}
+        run: sudo xcode-select -s "/Applications/Xcode_${{ vars.XCODE_VERSION }}.app"
+
+      - name: Compute version
+        id: version
+        run: |
+          if [ '${{ inputs.kind }}' = release ]; then
+            scripts/compute-version.sh release '${{ inputs.bump }}' >> "$GITHUB_OUTPUT"
+          else
+            scripts/compute-version.sh dev >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Name outputs
+        id: name
+        run: echo "artifact=ArtCraftAppManager-${{ steps.version.outputs.version }}" >> "$GITHUB_OUTPUT"
+
+      - name: Import Developer ID certificate
+        env:
+          CERT_P12: ${{ secrets.DEVELOPER_ID_CERT_P12 }}
+          CERT_PASSWORD: ${{ secrets.DEVELOPER_ID_CERT_PASSWORD }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+        run: |
+          echo "$CERT_P12" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security import "$RUNNER_TEMP/cert.p12" -P "$CERT_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN"
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security list-keychains -d user -s "$KEYCHAIN" login.keychain-db
+          rm "$RUNNER_TEMP/cert.p12"
+
+      - name: Archive and export
+        run: |
+          set -o pipefail
+          xcodebuild archive \
+            -project ArtCraftAppManager.xcodeproj \
+            -scheme ArtCraftAppManager \
+            -configuration Release \
+            -destination 'generic/platform=macOS' \
+            -archivePath "$RUNNER_TEMP/ArtCraftAppManager.xcarchive" \
+            -derivedDataPath "$RUNNER_TEMP/derived" \
+            MARKETING_VERSION='${{ steps.version.outputs.marketing_version }}' \
+            CURRENT_PROJECT_VERSION='${{ github.run_number }}' \
+            CODE_SIGN_STYLE=Manual \
+            CODE_SIGN_IDENTITY="Developer ID Application" \
+            DEVELOPMENT_TEAM=NMX3RG6P6L \
+            PROVISIONING_PROFILE_SPECIFIER="" \
+            OTHER_CODE_SIGN_FLAGS="--keychain $KEYCHAIN --timestamp"
+          xcodebuild -exportArchive \
+            -archivePath "$RUNNER_TEMP/ArtCraftAppManager.xcarchive" \
+            -exportOptionsPlist scripts/ExportOptions.plist \
+            -exportPath "$RUNNER_TEMP/export"
+
+      - name: Package DMG
+        run: |
+          mkdir -p "$RUNNER_TEMP/out"
+          dmg="$RUNNER_TEMP/out/${{ steps.name.outputs.artifact }}.dmg"
+          scripts/package-dmg.sh "$RUNNER_TEMP/export/ArtCraftAppManager.app" "$dmg" "ArtCraft Application Manager"
+          codesign --sign "Developer ID Application" --keychain "$KEYCHAIN" --timestamp "$dmg"
+
+      - name: Notarize and staple
+        env:
+          NOTARY_KEY: ${{ secrets.NOTARY_API_KEY_P8 }}
+          NOTARY_KEY_ID: ${{ secrets.NOTARY_API_KEY_ID }}
+          NOTARY_ISSUER: ${{ secrets.NOTARY_API_ISSUER_ID }}
+        run: |
+          dmg="$RUNNER_TEMP/out/${{ steps.name.outputs.artifact }}.dmg"
+          echo "$NOTARY_KEY" | base64 --decode > "$RUNNER_TEMP/notary.p8"
+          xcrun notarytool submit "$dmg" --key "$RUNNER_TEMP/notary.p8" --key-id "$NOTARY_KEY_ID" --issuer "$NOTARY_ISSUER" --wait
+          rm "$RUNNER_TEMP/notary.p8"
+          xcrun stapler staple "$dmg"
+
+      - name: Verify
+        run: |
+          dmg="$RUNNER_TEMP/out/${{ steps.name.outputs.artifact }}.dmg"
+          codesign --verify --deep --strict --verbose=2 "$RUNNER_TEMP/export/ArtCraftAppManager.app"
+          xcrun stapler validate "$dmg"
+          spctl --assess --type open --context context:primary-signature --verbose "$dmg"
+          (cd "$RUNNER_TEMP/out" && shasum -a 256 "$(basename "$dmg")" > "$(basename "$dmg").sha256")
+
+      - name: Upload DMG
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.name.outputs.artifact }}
+          path: ${{ runner.temp }}/out/*
+          retention-days: ${{ inputs.retention-days }}
+
+      - name: Remove signing keychain
+        if: ${{ always() }}
+        run: security delete-keychain "$KEYCHAIN" || true
