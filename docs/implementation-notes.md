@@ -134,3 +134,10 @@ Running log of decisions, changes and tradeoffs beyond the README. Dated 2026-10
 - Fix: `RunningAppsObserving` (Detection contract) with `WorkspaceRunningAppsObserver` (NSWorkspace launch and terminate notifications); `RunningStateRefresher` calls `rebuildRows()` on every event; `AppModel.start()` runs it. New spec line REQ-WIN-27 and `RunningStateTests`.
 - Cost: every launch or quit of any app on the Mac rebuilds the rows (a few small disk reads). Not debounced; it hasn't been a problem, and a debounce would be easy to add in `RunningStateRefresher`.
 - Checked the real observer with a throwaway script (launch and quit Calculator: both events arrived). I did not run the full app against a real Suite App; please confirm with PhotoCraft.
+
+## About panel (REQ-WIN-28)
+- Kept the standard macOS About panel rather than a custom window; the disclaimer and links go in its `credits`. The menu item replaces the default `.appInfo` command so it can pass options.
+- The icon is passed explicitly (`NSImage(named: "AppIcon")`). The `AppIcon` asset set was already complete, so the generic icon was most likely a stale icon cache or unsigned dev build; I have not reproduced that. Please check the About panel in a fresh build.
+- "Their GitHub org" is `storytold`, taken from the registry URLs.
+- Set `INFOPLIST_KEY_NSHumanReadableCopyright` to "© 2026 Edgars Klepers" (it was empty), which the panel shows.
+- The URLs and disclaimer live in `App/AboutContent.swift`. Not added to the menu bar menu (user's decision).

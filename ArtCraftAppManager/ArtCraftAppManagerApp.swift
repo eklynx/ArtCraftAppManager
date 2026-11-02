@@ -11,6 +11,11 @@ struct ArtCraftAppManagerApp: App {
             MainView().environment(model)
         }
         .defaultLaunchBehavior(AppLifecyclePolicy.showsWindowOnLaunch(startedByLoginItem: model.startedByLoginItem) ? .presented : .suppressed)
+        .commands {
+            CommandGroup(replacing: .appInfo) {  // REQ-WIN-28
+                Button("About ArtCraft Application Manager") { AboutContent.showAboutPanel() }
+            }
+        }
 
         Settings {
             SettingsView().environment(model)
