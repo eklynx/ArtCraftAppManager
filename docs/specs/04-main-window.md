@@ -41,3 +41,5 @@ Prototype: [`../prototypes/ApplicationLine.svg`](../prototypes/ApplicationLine.s
 
 ## Accessibility
 - **REQ-WIN-12** All buttons have accessibility labels including the App name (e.g. "Update GridCraft"); rows are navigable by keyboard.
+- **REQ-WIN-27** The Running state (REQ-WIN-15) follows the real process state live: when an App is launched or quits, its row updates without the user refreshing. The Manager re-reads which Apps are running on every application launch and quit event (`RunningAppsObserving`, [08](08-architecture.md)).
+

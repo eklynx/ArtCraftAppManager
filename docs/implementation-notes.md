@@ -128,3 +128,9 @@ Running log of decisions, changes and tradeoffs beyond the README. Dated 2026-10
 - Minimum OS lowered from macOS 27 to 26: deployment target 26.0 and project `objectVersion` 77 so Xcode 26 opens it. Checked by building and testing at 26 with Xcode 27's SDK (no macOS 27-only API used); not run on a real macOS 26 machine.
 - The runner label `xcode-27` the user first gave did resolve to a runner with Xcode 27.1; `xcode-26` matched nothing and jobs queued forever, so the default is the standard `macos-26`.
 - Unrelated, seen while doing this: `DiskImageIntegrationTests/realDmg` (real `hdiutil`) failed intermittently on the hosted runner (the `main` push after PR #2 and two runs on this PR); it passed on the latest runs. Not investigated.
+
+## Bug: Running label stuck after the App quit
+- Cause: `AppModel.rebuildRows` read each App's running state once, when rows were built (app start, refresh, installs). Nothing rebuilt the rows when an App launched or quit, so a quit App kept its "Running" label and its disabled Update/Uninstall until the next refresh. Not a stale process (the `ps` check was right).
+- Fix: `RunningAppsObserving` (Detection contract) with `WorkspaceRunningAppsObserver` (NSWorkspace launch and terminate notifications); `RunningStateRefresher` calls `rebuildRows()` on every event; `AppModel.start()` runs it. New spec line REQ-WIN-27 and `RunningStateTests`.
+- Cost: every launch or quit of any app on the Mac rebuilds the rows (a few small disk reads). Not debounced; it hasn't been a problem, and a debounce would be easy to add in `RunningStateRefresher`.
+- Checked the real observer with a throwaway script (launch and quit Calculator: both events arrived). I did not run the full app against a real Suite App; please confirm with PhotoCraft.

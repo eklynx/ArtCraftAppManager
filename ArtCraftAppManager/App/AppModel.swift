@@ -56,6 +56,7 @@ final class AppModel {
     private var latest: [String: Release] = [:]
     private var tasks: [String: Task<Void, Never>] = [:]
     private var timer: Task<Void, Never>?
+    private var runningWatcher: Task<Void, Never>?
     private var started = false
     /// UI tests: pretend GitHub is unreachable without touching the network.
     private var forcedOffline = false
@@ -127,6 +128,10 @@ final class AppModel {
     func start() async {
         guard !started else { return }
         started = true
+        // Keep the Running label and the disabled Update/Uninstall buttons in step with real launches and quits (REQ-WIN-27).
+        runningWatcher = Task { [weak self] in
+            await RunningStateRefresher(observer: WorkspaceRunningAppsObserver()).run { self?.rebuildRows() }
+        }
         await notifications.start()
         await refresh()
         timer = Task { [weak self] in
