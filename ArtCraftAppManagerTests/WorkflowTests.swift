@@ -42,7 +42,7 @@ struct WorkflowTests {
     @Test("REQ-TST-6 the package workflow fully signs: Developer ID, notarization and stapling")
     func packageWorkflow() throws {
         let text = try workflow("package.yml")
-        #expect(text.contains("secrets.DEVELOPER_ID_CERT_P12"))
+        #expect(text.contains("secrets.BUILD_CERT_BASE64"))
         #expect(text.contains("notarytool submit"))
         #expect(text.contains("stapler staple"))
         #expect(text.contains("workflow_call:"))
@@ -63,13 +63,13 @@ struct WorkflowTests {
         #expect(text.contains("targetCommitish"))
         #expect(text.contains("force:"))
         #expect(text.contains("needs: unit-tests"))
-        #expect(!text.contains("secrets.DEVELOPER_ID"))
+        #expect(!text.contains("secrets.BUILD_CERT_BASE64"))
     }
 
     @Test("REQ-TST-6 only package.yml uses signing secrets")
     func signingSecretsStayInPackage() throws {
         for name in ["unit-tests.yml", "ui-tests.yml", "release.yml", "nightly.yml"] {
-            #expect(!(try workflow(name)).contains("secrets.DEVELOPER_ID"), "\(name)")
+            #expect(!(try workflow(name)).contains("secrets.BUILD_CERT_BASE64"), "\(name)")
         }
     }
 

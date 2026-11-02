@@ -22,11 +22,11 @@ Computed by `scripts/compute-version.sh` from the `vX.Y.Z` git tags (nothing is 
 
 ## Setting up signing (once)
 Repository secrets:
-- `DEVELOPER_ID_CERT_P12`: base64 of the exported "Developer ID Application" certificate with its private key (`base64 -i cert.p12 | pbcopy`).
-- `DEVELOPER_ID_CERT_PASSWORD`: the password used when exporting the .p12.
+- `BUILD_CERT_BASE64`: base64 of the exported "Developer ID Application" certificate with its private key (`base64 -i cert.p12 | pbcopy`).
+- `P12_PASSWORD`: the password used when exporting the .p12.
 - `KEYCHAIN_PASSWORD`: any random string; protects the temporary keychain on the runner.
 - `NOTARY_API_KEY_P8`: base64 of an App Store Connect API key (`.p8`) allowed to notarize.
-- `NOTARY_API_KEY_ID` and `NOTARY_API_ISSUER_ID`: that key's ID and its issuer ID.
+- `NOTARY_KEY_ID` and `NOTARY_API_ISSUER_ID`: that key's ID and its issuer ID.
 
 ## Cutting a release
 1. Actions tab, **Release**, **Run workflow**, choose the bump.
