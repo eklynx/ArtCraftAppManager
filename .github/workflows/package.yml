@@ -60,8 +60,8 @@ jobs:
 
       - name: Import Developer ID certificate
         env:
-          CERT_P12: ${{ secrets.DEVELOPER_ID_CERT_P12 }}
-          CERT_PASSWORD: ${{ secrets.DEVELOPER_ID_CERT_PASSWORD }}
+          CERT_P12: ${{ secrets.BUILD_CERT_BASE64 }}
+          CERT_PASSWORD: ${{ secrets.P12_PASSWORD }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
           echo "$CERT_P12" | base64 --decode > "$RUNNER_TEMP/cert.p12"
