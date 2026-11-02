@@ -26,7 +26,7 @@ Repository secrets:
 - `P12_PASSWORD`: the password used when exporting the .p12.
 - `KEYCHAIN_PASSWORD`: any random string; protects the temporary keychain on the runner.
 - `NOTARY_API_KEY_P8`: base64 of an App Store Connect API key (`.p8`) allowed to notarize.
-- `NOTARY_API_KEY_ID` and `NOTARY_API_ISSUER_ID`: that key's ID and its issuer ID.
+- `NOTARY_KEY_ID` and `NOTARY_API_ISSUER_ID`: that key's ID and its issuer ID.
 
 ## Cutting a release
 1. Actions tab, **Release**, **Run workflow**, choose the bump.

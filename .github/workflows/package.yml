@@ -105,7 +105,7 @@ jobs:
       - name: Notarize and staple
         env:
           NOTARY_KEY: ${{ secrets.NOTARY_API_KEY_P8 }}
-          NOTARY_KEY_ID: ${{ secrets.NOTARY_API_KEY_ID }}
+          NOTARY_KEY_ID: ${{ secrets.NOTARY_KEY_ID }}
           NOTARY_ISSUER: ${{ secrets.NOTARY_API_ISSUER_ID }}
         run: |
           dmg="$RUNNER_TEMP/out/${{ steps.name.outputs.artifact }}.dmg"
