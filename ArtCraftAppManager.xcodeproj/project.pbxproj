@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 110;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -32,6 +32,7 @@
 		9BA0E478309576E4005AFA92 /* ArtCraftAppManagerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ArtCraftAppManagerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9BA0E482309576E4005AFA92 /* ArtCraftAppManagerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ArtCraftAppManagerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		9BA0E4A0309576E5005AFA92 /* apps.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = apps.json; path = docs/registry/apps.json; sourceTree = SOURCE_ROOT; };
+		9BCEB424309871F40078B471 /* ci.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = ci.md; sourceTree = "<group>"; };
 		9BE3DFCC3097AC9100A8D5F0 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		9BE3DFCD3097AC9800A8D5F0 /* 0001-sandbox-and-install-strategy.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "0001-sandbox-and-install-strategy.md"; sourceTree = "<group>"; };
 		9BE3DFCE3097AC9800A8D5F0 /* 0002-registry-bundled-with-remote-refresh.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = "0002-registry-bundled-with-remote-refresh.md"; sourceTree = "<group>"; };
@@ -180,6 +181,7 @@
 				9BE3DFE43097AC9800A8D5F0 /* specs */,
 				9BE3DFE53097AC9800A8D5F0 /* implementation-notes.md */,
 				9BE3DFE63097AC9800A8D5F0 /* manual-verification.md */,
+				9BCEB424309871F40078B471 /* ci.md */,
 			);
 			path = docs;
 			sourceTree = "<group>";
