@@ -81,6 +81,14 @@ final class FakeNotifier: UpdateNotifying {
     }
 }
 
+final class FakeRunningAppsObserver: RunningAppsObserving {
+    private var continuation: AsyncStream<Void>.Continuation?
+    private(set) var isObserving = false
+    func changes() -> AsyncStream<Void> { isObserving = true; return AsyncStream { continuation = $0 } }
+    func emit() { continuation?.yield() }
+    func finish() { continuation?.finish() }
+}
+
 final class FakeQuitObserver: QuitObserving {
     var quit = false
     func waitForQuit(of installed: InstalledApp) async {}
