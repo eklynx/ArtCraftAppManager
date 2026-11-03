@@ -1,7 +1,7 @@
 {
   "$schema": "./apps.schema.json",
   "schemaVersion": 1,
-  "updated": "2026-10-31",
+  "updated": "2026-11-02",
   "owner": "storytold",
   "apps": [
     {
@@ -198,6 +198,20 @@
       "bundleId": "ai.storyteller.lightcraft",
       "appBundleName": "LightCraft.app",
       "iconUrl": "https://raw.githubusercontent.com/storytold/lightcraft/HEAD/assets/app-icon/hicolor/256x256/apps/ai.storyteller.lightcraft.png",
+      "enabledByDefault": true
+    },
+    {
+      "id": "texturecraft",
+      "displayName": "TextureCraft",
+      "repo": "storytold/texturecraft",
+      "releasesUrl": "https://github.com/storytold/texturecraft/releases",
+      "apiLatestUrl": "https://api.github.com/repos/storytold/texturecraft/releases/latest",
+      "tagPattern": "^v(?<version>\\d+\\.\\d+\\.\\d+)$",
+      "assetPattern": "^texturecraft-(?<version>\\d+\\.\\d+\\.\\d+)-macos-universal\\.dmg$",
+      "checksumAsset": "SHA256SUMS.txt",
+      "bundleId": "ai.storyteller.texturecraft",
+      "appBundleName": "TextureCraft.app",
+      "iconUrl": "https://raw.githubusercontent.com/storytold/texturecraft/HEAD/assets/app-icon/hicolor/256x256/apps/ai.storyteller.texturecraft.png",
       "enabledByDefault": true
     }
   ]

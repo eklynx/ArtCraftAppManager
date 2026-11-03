@@ -90,7 +90,7 @@ final class MainWindowUITests: XCTestCase {
         app.typeKey(",", modifierFlags: .command)
         let rows = app.descendants(matching: .any)["settings.apps.list"].cells
         XCTAssertTrue(rows.firstMatch.waitForExistence(timeout: 5))
-        XCTAssertEqual(rows.count, 14)
+        XCTAssertEqual(rows.count, 15)
         XCTAssertTrue(rows.element(boundBy: 13).isHittable, "the last app must be visible without scrolling")
     }
 
