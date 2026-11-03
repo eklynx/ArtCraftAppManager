@@ -213,6 +213,20 @@
       "appBundleName": "TextureCraft.app",
       "iconUrl": "https://raw.githubusercontent.com/storytold/texturecraft/HEAD/assets/app-icon/hicolor/256x256/apps/ai.storyteller.texturecraft.png",
       "enabledByDefault": true
+    },
+    {
+      "id": "craft-anything",
+      "displayName": "Craft Anything",
+      "repo": "storytold/craft-anything",
+      "releasesUrl": "https://github.com/storytold/craft-anything/releases",
+      "apiLatestUrl": "https://api.github.com/repos/storytold/craft-anything/releases/latest",
+      "tagPattern": "^v(?<version>\\d+\\.\\d+\\.\\d+)$",
+      "assetPattern": "^craft-anything-(?<version>\\d+\\.\\d+\\.\\d+)-macos-universal\\.dmg$",
+      "checksumAsset": "SHA256SUMS.txt",
+      "bundleId": "ai.storyteller.craft-anything",
+      "appBundleName": "Craft Anything.app",
+      "iconUrl": "https://raw.githubusercontent.com/storytold/craft-anything/HEAD/assets/app-icon/hicolor/256x256/apps/ai.storyteller.craft-anything.png",
+      "enabledByDefault": true
     }
   ]
 }

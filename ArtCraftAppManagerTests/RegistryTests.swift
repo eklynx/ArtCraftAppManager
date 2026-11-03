@@ -13,7 +13,7 @@ struct RegistryFileTests {
         let root = try JSONSerialization.jsonObject(with: Data(contentsOf: Repo.registryFile)) as! [String: Any]
         let apps = root["apps"] as! [[String: Any]]
         #expect(root["schemaVersion"] as? Int == AppRegistry.supportedSchemaVersion)
-        #expect(apps.count == 15)
+        #expect(apps.count == 16)
         for app in apps {
             #expect(Set(app.keys) == required, "keys differ for \(app["id"] ?? "?")")
         }

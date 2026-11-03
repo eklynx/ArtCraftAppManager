@@ -3,6 +3,16 @@
   ArtCraft Application Manager
 </h1>
 
+[![Unit tests](https://github.com/eklynx/ArtCraftAppManager/actions/workflows/unit-tests.yml/badge.svg)](https://github.com/eklynx/ArtCraftAppManager/actions/workflows/unit-tests.yml)
+[![CodeQL](https://github.com/eklynx/ArtCraftAppManager/actions/workflows/codeql.yml/badge.svg)](https://github.com/eklynx/ArtCraftAppManager/actions/workflows/codeql.yml)
+[![Nightly build](https://github.com/eklynx/ArtCraftAppManager/actions/workflows/nightly.yml/badge.svg)](https://github.com/eklynx/ArtCraftAppManager/actions/workflows/nightly.yml)
+[![Latest release](https://img.shields.io/github/v/release/eklynx/ArtCraftAppManager?label=release)](https://github.com/eklynx/ArtCraftAppManager/releases/latest)
+[![Latest build incl. pre-releases](https://img.shields.io/github/v/release/eklynx/ArtCraftAppManager?include_prereleases&label=latest%20build)](https://github.com/eklynx/ArtCraftAppManager/releases)
+[![Downloads](https://img.shields.io/github/downloads/eklynx/ArtCraftAppManager/total)](https://github.com/eklynx/ArtCraftAppManager/releases)
+![macOS 26+](https://img.shields.io/badge/macOS-26%2B-blue)
+![Swift](https://img.shields.io/badge/Swift-SwiftUI-orange)
+[![License: MIT](https://img.shields.io/github/license/eklynx/ArtCraftAppManager)](LICENSE)
+
 ## Description
 This application manages the installation and updates of the ArtCraft suite of applications.
 
