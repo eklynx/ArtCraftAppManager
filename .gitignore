@@ -49,3 +49,4 @@ Package.pins
 
 # Local Claude working files
 .claude/settings.local.json
+__pycache__/

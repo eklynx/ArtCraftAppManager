@@ -77,6 +77,16 @@ struct SettingsView: View {
                 Toggle("Launch at login", isOn: Binding(get: { model.launchAtLogin }, set: model.setLaunchAtLogin))
                     .accessibilityIdentifier("settings.launchAtLogin")
             }
+            Section("Manager Updates") {  // REQ-UPD-4, REQ-UPD-2
+                Toggle("Automatically check for Manager updates", isOn: Binding(get: { model.managerAutoCheck }, set: model.setManagerAutoCheck))
+                    .accessibilityIdentifier("settings.managerAutoCheck")
+                Picker("Update channel", selection: Binding(get: { model.managerChannel }, set: model.setManagerChannel)) {
+                    ForEach(ManagerUpdateChannel.allCases) { Text($0.title).tag($0) }
+                }
+                .accessibilityIdentifier("settings.managerChannel")
+                Text("Release: stable versions only. Pre-release: also test versions. Nightly: also every nightly build of main.")
+                    .font(.caption).foregroundStyle(.secondary)
+            }
         }
         .formStyle(.grouped)
         .onAppear { revealIfOptionHeld() }

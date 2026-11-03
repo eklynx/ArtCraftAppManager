@@ -1,0 +1,53 @@
+name: Publish Sparkle Feed
+
+# Rebuilds the Sparkle Feed (appcast.xml) from the Manager's GitHub releases and deploys it to GitHub Pages at
+# https://eklynx.github.io/ArtCraftAppManager/appcast.xml. Runs after a Release or Nightly Build finishes (workflow_run, because
+# releases created with GITHUB_TOKEN do not trigger release events), which also covers the nightly prune. Signs with the
+# SPARKLE_ED_PRIVATE_KEY secret (source of truth: 1Password vault Dev-ArtCraftAppManager). See docs/ci.md ("Sparkle Feed").
+on:
+  workflow_run:
+    workflows: [Release, Nightly Build]
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: appcast
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ${{ fromJSON(vars.RUNNER_LABELS || '["macos-26"]') }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+      SPARKLE_VERSION: '2.10.1'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download Sparkle tools
+        run: |
+          curl -fsSL "https://github.com/sparkle-project/Sparkle/releases/download/$SPARKLE_VERSION/Sparkle-$SPARKLE_VERSION.tar.xz" -o "$RUNNER_TEMP/sparkle.tar.xz"
+          mkdir -p "$RUNNER_TEMP/sparkle" && tar -xf "$RUNNER_TEMP/sparkle.tar.xz" -C "$RUNNER_TEMP/sparkle"
+          echo "SPARKLE_BIN=$RUNNER_TEMP/sparkle/bin" >> "$GITHUB_ENV"
+      - name: Build appcast.xml
+        env:
+          SPARKLE_ED_PRIVATE_KEY: ${{ secrets.SPARKLE_ED_PRIVATE_KEY }}
+        run: scripts/build-appcast.py site
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

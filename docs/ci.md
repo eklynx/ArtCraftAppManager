@@ -43,3 +43,10 @@ Download the DMG from the pre-release on the Releases page. Nightlies are never 
 
 ## CodeQL
 `codeql.yml` replaces GitHub's default setup (which must stay off, or it rejects these uploads). It scans the workflows (`actions`) and the Swift code on every push and PR to `main`, and weekly. Swift has no `build-mode: none`, so it is built with `xcodebuild` on the same runner as the unit tests (`RUNNER_LABELS`, default `macos-26`); that build takes about 12 minutes.
+
+## Sparkle Feed
+`appcast.yml` rebuilds the Manager's Sparkle Feed after **Release** or **Nightly Build** succeeds (and on demand) and deploys it to GitHub Pages: `https://eklynx.github.io/ArtCraftAppManager/appcast.xml`. It uses `scripts/build-appcast.py` (tests: `python3 scripts/tests/build-appcast-tests.py`) and the secret `SPARKLE_ED_PRIVATE_KEY`.
+- The private key is in the 1Password vault `Dev-ArtCraftAppManager` (item `SPARKLE_ED_PRIVATE_KEY`) and the login Keychain (account `ed25519`). To rotate: `generate_keys`, update the item and the secret, and ship a build with the new `SUPublicEDKey` in `Config/Sparkle-Info.plist` first; installs with the old key cannot verify updates signed with the new one.
+- Pages source must be **GitHub Actions** (Settings → Pages).
+- The build number (`CFBundleVersion`) is the UTC build time, so Sparkle can order Release and Nightly builds.
+

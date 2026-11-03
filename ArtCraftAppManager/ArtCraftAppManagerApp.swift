@@ -14,6 +14,7 @@ struct ArtCraftAppManagerApp: App {
         .commands {
             CommandGroup(replacing: .appInfo) {  // REQ-WIN-28
                 Button("About ArtCraft Application Manager") { AboutContent.showAboutPanel() }
+                Button("Check for Updates…") { model.managerUpdater.checkForUpdates() }  // REQ-UPD-3
             }
         }
 

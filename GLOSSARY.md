@@ -35,3 +35,14 @@
 **Manager release**: A tagged, signed and notarized build of the Manager, published as a disk image on the Manager's own GitHub releases. _Avoid_: Release (that term is for Apps).
 
 **Nightly build**: A signed and notarized build of the Manager's `main` branch, published as a GitHub pre-release and kept only for the latest seven. Not a Manager release.
+
+**Manager update**: A newer Manager release, pre-release or Nightly build offered to the running Manager through Sparkle. _Avoid_: Update (that term is for Apps).
+
+**Feed**: The Sparkle appcast listing Manager builds, hosted on GitHub Pages.
+
+**Release channel**: The default Manager update channel; offers Manager releases only.
+
+**Pre-release channel**: Offers Manager releases and GitHub pre-releases whose tag does not start with `nightly-`.
+
+**Nightly channel**: Offers everything, including Nightly builds.
+

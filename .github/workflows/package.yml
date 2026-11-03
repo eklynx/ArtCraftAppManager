@@ -56,7 +56,11 @@ jobs:
 
       - name: Name outputs
         id: name
-        run: echo "artifact=ArtCraftAppManager-${{ steps.version.outputs.version }}" >> "$GITHUB_OUTPUT"
+        # The build number (CFBundleVersion) is a UTC timestamp: Sparkle orders updates by it, and unlike github.run_number
+        # it keeps rising across the separate Release and Nightly workflows.
+        run: |
+          echo "artifact=ArtCraftAppManager-${{ steps.version.outputs.version }}" >> "$GITHUB_OUTPUT"
+          echo "build=$(date -u +%Y%m%d%H%M%S)" >> "$GITHUB_OUTPUT"
 
       - name: Import Developer ID certificate
         env:
@@ -84,7 +88,7 @@ jobs:
             -archivePath "$RUNNER_TEMP/ArtCraftAppManager.xcarchive" \
             -derivedDataPath "$RUNNER_TEMP/derived" \
             MARKETING_VERSION='${{ steps.version.outputs.marketing_version }}' \
-            CURRENT_PROJECT_VERSION='${{ github.run_number }}' \
+            CURRENT_PROJECT_VERSION='${{ steps.name.outputs.build }}' \
             CODE_SIGN_STYLE=Manual \
             CODE_SIGN_IDENTITY="Developer ID Application" \
             DEVELOPMENT_TEAM=NMX3RG6P6L \

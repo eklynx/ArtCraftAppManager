@@ -141,3 +141,13 @@ Running log of decisions, changes and tradeoffs beyond the README. Dated 2026-10
 - "Their GitHub org" is `storytold`, taken from the registry URLs.
 - Set `INFOPLIST_KEY_NSHumanReadableCopyright` to "© 2026 Edgars Klepers" (it was empty), which the panel shows.
 - The URLs and disclaimer live in `App/AboutContent.swift`. Not added to the menu bar menu (user's decision).
+
+## Manager self-update (REQ-UPD-1…9)
+- Sparkle 2.10.1 via SPM, pinned exactly. Feed URL, public key and automatic checks are in `Config/Sparkle-Info.plist`, merged into the generated Info.plist (`INFOPLIST_KEY_*` only supports known keys).
+- Deviation from the plan: `appcast.yml` is triggered by `workflow_run` on Release and Nightly Build, not `release: published`, because releases created with `GITHUB_TOKEN` do not fire release events. Covers the nightly prune too, since the prune runs inside Nightly Build.
+- `CFBundleVersion` is now a UTC timestamp, not `github.run_number` (per workflow, so Release and Nightly runs could not be ordered). The first Sparkle build is therefore larger than any earlier build (small integers).
+- Builds from before Sparkle have no `SUPublicEDKey`, so `generate_appcast` leaves them unsigned; `build-appcast.py` drops unsigned items. The Feed is empty until the first Sparkle build is released.
+- Channels are cumulative (Nightly also gets Pre-release items); my assumption, so a Nightly user is never stuck behind a newer release.
+- Key mishap: I first stored the error text `ERROR: private-key-file already exists: /dev/stdout` in 1Password and the GitHub secret (`generate_keys -x /dev/stdout` refuses existing paths) and wrongly reported it as verified. Caught by the user; re-exported through a temp file, stored again, and checked by signing with it.
+- Not done: a live end-to-end update from a real Feed (needs a released Sparkle build first). The Settings window got a section but I did not run the UI tests.
+
