@@ -227,6 +227,20 @@
       "appBundleName": "Craft Anything.app",
       "iconUrl": "https://raw.githubusercontent.com/storytold/craft-anything/HEAD/assets/app-icon/hicolor/256x256/apps/ai.storyteller.craft-anything.png",
       "enabledByDefault": true
+    },
+    {
+      "id": "solidcraft",
+      "displayName": "SolidCraft",
+      "repo": "tangency-labs/solidcraft",
+      "releasesUrl": "https://github.com/tangency-labs/solidcraft/releases",
+      "apiLatestUrl": "https://api.github.com/repos/tangency-labs/solidcraft/releases/latest",
+      "tagPattern": "^v(?<version>\\d+\\.\\d+\\.\\d+)$",
+      "assetPattern": "^solidcraft-(?<version>\\d+\\.\\d+\\.\\d+)-macos-universal\\.dmg$",
+      "checksumAsset": "SHA256SUMS.txt",
+      "bundleId": "io.tangencylabs.solidcraft",
+      "appBundleName": "SolidCraft.app",
+      "iconUrl": "https://raw.githubusercontent.com/tangency-labs/solidcraft/HEAD/assets/icons/app/linux/exports/hicolor/256x256/apps/io.tangencylabs.solidcraft.png",
+      "enabledByDefault": true
     }
   ]
 }

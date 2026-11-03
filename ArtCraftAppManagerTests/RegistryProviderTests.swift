@@ -52,6 +52,6 @@ struct RegistryProviderTests {
 
     @Test("REQ-REG-1 the registry bundled in the app loads and validates")
     func loadsBundledCopy() throws {
-        #expect(try BundledRemoteRegistryProvider.loadBundled().apps.count == 16)
+        #expect(try BundledRemoteRegistryProvider.loadBundled().apps.count == 17)
     }
 }

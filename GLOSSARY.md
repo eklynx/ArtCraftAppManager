@@ -6,6 +6,8 @@
 
 **App**: One application of the Suite (e.g. GridCraft). _Avoid_: product, program.
 
+**Community App**: An App that is listed in ArtCraft's own launcher but published by another GitHub organisation (e.g. SolidCraft by `tangency-labs`). It is an App like any other in the Manager.
+
 **Registry**: The list of Apps and where each one's Releases live on GitHub (`apps.json`).
 
 **Release**: A published, non-draft, non-prerelease GitHub release of an App, carrying a macOS disk image.
