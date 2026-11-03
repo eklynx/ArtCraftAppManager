@@ -17,7 +17,7 @@
 - UI accessibility identifiers used by XCUITests are listed at the top of `MainWindowUITests.swift` and are part of the UI contract.
 
 ## Fixtures
-- `ArtCraftAppManagerTests/Fixtures/releases/<id>.json` – the 14 real `releases/latest` payloads captured 2026-10-31 (tag, draft, prerelease, asset names/URLs). Draft, prerelease, no-macOS-asset and 304 cases are built in code (`releaseJSON(...)`, `FakeHTTPTransport`).
+- `ArtCraftAppManagerTests/Fixtures/releases/<id>.json` – one real `releases/latest` payload per Registry App (first 14 captured 2026-10-31, later Apps when added) (tag, draft, prerelease, asset names/URLs). Draft, prerelease, no-macOS-asset and 304 cases are built in code (`releaseJSON(...)`, `FakeHTTPTransport`).
 - A stub DMG is generated with `hdiutil` at test time (`DiskImageIntegrationTests`); other install tests use `FakeMounter` and temp folders. Checksum lists are built in code.
 
 ## Traceability matrix

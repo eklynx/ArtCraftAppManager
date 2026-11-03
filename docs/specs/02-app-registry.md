@@ -3,7 +3,7 @@
 The *Registry* is `docs/registry/apps.json` (schema: `apps.schema.json`). It lists every App and where its Releases live on GitHub.
 
 ## File format
-Top level: `schemaVersion` (int, currently `1`), `updated` (date), `owner` (GitHub org), `apps` (array).
+Top level: `schemaVersion` (int, currently `1`), `updated` (date), `owner` (GitHub org of the Suite; a *Community App* may have a `repo` under another org), `apps` (array).
 
 Per app:
 
