@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Manager self-update (docs/specs/10-manager-update.md). Merged into the generated Info.plist. -->
+	<key>SUFeedURL</key>
+	<string>https://eklynx.github.io/ArtCraftAppManager/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>dft5/XnIFHM7bMMOxmiPpX3z1Eyvwa3E4tE4eCjn2jg=</string>
+	<key>SUEnableAutomaticChecks</key>
+	<true/>
+</dict>
+</plist>

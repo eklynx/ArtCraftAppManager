@@ -13,6 +13,7 @@ These documents are the source of truth for behaviour. Code and tests trace back
 | [07-errors-and-status.md](07-errors-and-status.md) | `ERR` | Error catalogue and status-line text |
 | [08-architecture.md](08-architecture.md) | `ARC` | Modules and the protocols between them |
 | [09-test-plan.md](09-test-plan.md) | `TST` | Test strategy and REQ → test matrix |
+| [10-manager-update.md](10-manager-update.md) | `UPD` | Manager self-update with Sparkle, channels, the Feed |
 
 Related: [`../registry/apps.json`](../registry/apps.json), [`../registry/apps.schema.json`](../registry/apps.schema.json), [`../../GLOSSARY.md`](../../GLOSSARY.md), [`../adr/`](../adr/), UI prototype [`../prototypes/ApplicationLine.svg`](../prototypes/ApplicationLine.svg).
 

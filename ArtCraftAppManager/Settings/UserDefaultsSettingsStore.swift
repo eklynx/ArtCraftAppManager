@@ -32,4 +32,12 @@ final class UserDefaultsSettingsStore: SettingsStoring {
         get { defaults.array(forKey: "appOrder") as? [String] }
         set { defaults.set(newValue, forKey: "appOrder") }
     }
+    var managerAutoCheck: Bool {
+        get { defaults.object(forKey: "managerAutoCheck") as? Bool ?? true }
+        set { defaults.set(newValue, forKey: "managerAutoCheck") }
+    }
+    var managerUpdateChannel: ManagerUpdateChannel {
+        get { defaults.string(forKey: "managerUpdateChannel").flatMap(ManagerUpdateChannel.init(rawValue:)) ?? .release }
+        set { defaults.set(newValue.rawValue, forKey: "managerUpdateChannel") }
+    }
 }

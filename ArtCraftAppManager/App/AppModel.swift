@@ -37,6 +37,10 @@ final class AppModel {
     private(set) var policy: UpdatePolicy
     private(set) var launchAtLogin: Bool
     private(set) var appOrder: [String]?
+    private(set) var managerAutoCheck: Bool
+    private(set) var managerChannel: ManagerUpdateChannel
+    /// Updates the Manager itself (REQ-UPD-1); disabled in Debug builds and test runs (REQ-UPD-6).
+    let managerUpdater: ManagerUpdating
     private let tokenStore = KeychainTokenProvider()
     /// Optional GitHub token, kept in the Keychain (REQ-SET-9).
     var githubToken: String { didSet { tokenStore.save(githubToken) } }
@@ -106,6 +110,15 @@ final class AppModel {
         if !settings.autoInstall { initialPolicy.setAutoDownload(settings.autoDownload) }
         policy = initialPolicy
         appOrder = settings.appOrder
+        managerAutoCheck = settings.managerAutoCheck
+        managerChannel = settings.managerUpdateChannel
+        #if DEBUG
+        managerUpdater = DisabledManagerUpdater(automaticallyChecks: settings.managerAutoCheck, channel: settings.managerUpdateChannel)
+        #else
+        managerUpdater = isUITest || isTestHost
+            ? DisabledManagerUpdater(automaticallyChecks: settings.managerAutoCheck, channel: settings.managerUpdateChannel)
+            : SparkleManagerUpdater(automaticallyChecks: settings.managerAutoCheck, channel: settings.managerUpdateChannel)
+        #endif
         githubToken = isUITest || isTestHost ? "" : (KeychainTokenProvider().token() ?? "")
         launchAtLogin = settings.launchAtLogin || arguments.contains("-uitest-started-by-login-item")
         startedByLoginItem = arguments.contains("-uitest-started-by-login-item") || Self.launchedAsLoginItem()
@@ -386,6 +399,18 @@ final class AppModel {
         policy.setAutoInstall(on)
         store.autoInstall = policy.autoInstall
         store.autoDownload = policy.autoDownload
+    }
+
+    func setManagerAutoCheck(_ on: Bool) {
+        managerAutoCheck = on
+        managerUpdater.automaticallyChecks = on
+        store.managerAutoCheck = on
+    }
+
+    func setManagerChannel(_ channel: ManagerUpdateChannel) {
+        managerChannel = channel
+        managerUpdater.channel = channel
+        store.managerUpdateChannel = channel
     }
 
     func setLaunchAtLogin(_ on: Bool) {

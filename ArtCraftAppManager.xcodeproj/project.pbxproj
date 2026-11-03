@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		9BA0E4A1309576E5005AFA92 /* apps.json in Resources */ = {isa = PBXBuildFile; fileRef = 9BA0E4A0309576E5005AFA92 /* apps.json */; };
+		9BA0E5B1309576E5005AFA92 /* Sparkle in Frameworks */ = {isa = PBXBuildFile; productRef = 9BA0E5B3309576E5005AFA92 /* Sparkle */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -79,6 +80,7 @@
 		9BA0E468309576E2005AFA92 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			files = (
+				9BA0E5B1309576E5005AFA92 /* Sparkle in Frameworks */,
 			);
 		};
 		9BA0E475309576E4005AFA92 /* Frameworks */ = {
@@ -203,6 +205,9 @@
 				9BA0E46D309576E2005AFA92 /* ArtCraftAppManager */,
 			);
 			name = ArtCraftAppManager;
+			packageProductDependencies = (
+				9BA0E5B3309576E5005AFA92 /* Sparkle */,
+			);
 			productName = ArtCraftAppManager;
 			productReference = 9BA0E46B309576E2005AFA92 /* ArtCraftAppManager.app */;
 			productType = "com.apple.product-type.application";
@@ -281,6 +286,9 @@
 			);
 			mainGroup = 9BA0E462309576E2005AFA92;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				9BA0E5B2309576E5005AFA92 /* XCRemoteSwiftPackageReference "Sparkle" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 9BA0E46C309576E2005AFA92 /* Products */;
 			projectDirPath = "";
@@ -478,6 +486,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Config/Sparkle-Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2026 Edgars Klepers";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -510,6 +519,7 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = Config/Sparkle-Info.plist;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "© 2026 Edgars Klepers";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -609,6 +619,25 @@
 			name = Release;
 		};
 /* End XCBuildConfiguration section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		9BA0E5B2309576E5005AFA92 /* XCRemoteSwiftPackageReference "Sparkle" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/sparkle-project/Sparkle";
+			requirement = {
+				kind = exactVersion;
+				version = 2.10.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		9BA0E5B3309576E5005AFA92 /* Sparkle */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 9BA0E5B2309576E5005AFA92 /* XCRemoteSwiftPackageReference "Sparkle" */;
+			productName = Sparkle;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCConfigurationList section */
 		9BA0E466309576E2005AFA92 /* Build configuration list for PBXProject "ArtCraftAppManager" */ = {

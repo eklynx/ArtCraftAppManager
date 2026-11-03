@@ -20,6 +20,10 @@ protocol SettingsStoring: AnyObject {
     var launchAtLogin: Bool { get set }
     /// nil means "never reordered": use the registry order (REQ-SET-10).
     var appOrder: [String]? { get set }
+    /// Check for Manager updates automatically; default on (REQ-UPD-4).
+    var managerAutoCheck: Bool { get set }
+    /// Which Manager builds to be offered; default `.release` (REQ-UPD-2).
+    var managerUpdateChannel: ManagerUpdateChannel { get set }
 }
 
 extension SettingsStoring {

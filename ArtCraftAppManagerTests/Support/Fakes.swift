@@ -162,6 +162,8 @@ final class InMemorySettings: SettingsStoring {
     var autoInstall = false
     var launchAtLogin = false
     var appOrder: [String]?
+    var managerAutoCheck = true
+    var managerUpdateChannel: ManagerUpdateChannel = .release
 }
 
 /// In-memory icon source: returns canned data per App id (REQ-ARC-3, REQ-WIN-25).
@@ -173,3 +175,13 @@ final class FakeIconProvider: AppIconProviding {
         return icons[app.id]
     }
 }
+
+@MainActor
+final class FakeManagerUpdater: ManagerUpdating {
+    var canCheckForUpdates = true
+    var automaticallyChecks = true
+    var channel: ManagerUpdateChannel = .release
+    private(set) var checks = 0
+    func checkForUpdates() { checks += 1 }
+}
+

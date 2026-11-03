@@ -38,6 +38,7 @@ Test names follow `REQ-<AREA>-<n>_<behaviour>`. Level: **U** unit, **I** integra
 | NOT | NOT-1…8 | U (matrix table-driven, dedupe, quit-observation via fake workspace) |
 | ERR | ERR-1…3 | U (every code has text; per-App isolation) |
 | ARC | ARC-1…9 | U/I (state file rebuild, resource present); ARC-1/2/5 verified by review checklist test (protocol docs contain "Happy path"/"Errors") |
+| UPD | UPD-1…9 | U (channel mapping, settings defaults, plist keys, workflow shape) + Python tests of `build-appcast.py`; live update is a manual check |
 | TST | TST-1…8 | `SpecCoverageTests`, registry tests, `WorkflowTests` (workflow shape; runs the version script test) |
 
-Manual checks (cannot be automated hermetically): Gatekeeper first-launch of an installed App; real Login Item approval flow; a live update of one real App on an external volume.
+Manual checks (cannot be automated hermetically): a Manager self-update from a real Feed; Gatekeeper first-launch of an installed App; real Login Item approval flow; a live update of one real App on an external volume.
