@@ -3,7 +3,7 @@
 Running log of decisions, changes and tradeoffs beyond the README. Dated 2026-10-31.
 
 ## Decisions not in the README
-- **App list** = 14 apps from GitHub org `storytold`, each with a macOS universal `.dmg` in its latest release: artcraft, vectorcraft, photocraft, figcraft, soundcraft, cadcraft, gridcraft, deckcraft, wordcraft, effectcraft, pdfcraft, designcraft, filmcraft, lightcraft. Excluded: `craft-launcher` (the vendor's own manager), `craft-anything` (v0.1.0, experimental), AniCraft/crafthub (no releases).
+- **App list** = 15 apps from GitHub org `storytold`, each with a macOS universal `.dmg` in its latest release: artcraft, vectorcraft, photocraft, figcraft, soundcraft, cadcraft, gridcraft, deckcraft, wordcraft, effectcraft, pdfcraft, designcraft, filmcraft, lightcraft, texturecraft. Excluded: `craft-launcher` (the vendor's own manager), `craft-anything` (v0.1.0, experimental), AniCraft/crafthub (no releases).
 - **Release naming differs for ArtCraft**: tag `artcraft-vX.Y.Z`, asset `ArtCraft_X.Y.Z_universal.dmg`, no `SHA256SUMS.txt`. The other 13 use `vX.Y.Z` / `<id>-X.Y.Z-macos-universal.dmg` / `SHA256SUMS.txt`. Handled via per-app regex patterns in the registry; all 14 patterns were checked against the live latest releases (each matched exactly one dmg).
 - **Registry**: bundled + remote refresh from this repo's `main` raw URL (ADR 0002). Lives at `docs/registry/apps.json`, with a JSON Schema; the app bundle references that file directly (REQ-ARC-7).
 - **Sandbox off** (ADR 0001) — the template had it on.
