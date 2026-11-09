@@ -28,6 +28,8 @@ final class AppModel {
     private(set) var status = StatusLine()
     private(set) var isChecking = false
     var scrollTarget: String?
+    /// Bumped when something (a clicked notification) needs the main window open; observed by the menu bar label (REQ-WIN-29).
+    private(set) var openMainRequest = 0
     let startedByLoginItem: Bool
 
     // MARK: Settings (mirrored so SwiftUI observes them)
@@ -130,7 +132,7 @@ final class AppModel {
         rebuildRows()
     }
 
-    private static func launchedAsLoginItem() -> Bool {
+    static func launchedAsLoginItem() -> Bool {
         guard let event = NSAppleEventManager.shared().currentAppleEvent else { return false }
         return event.eventID == AEEventID(kAEOpenApplication)
             && event.paramDescriptor(forKeyword: AEKeyword(keyAEPropData))?.enumCodeValue == OSType(keyAELaunchedAsLogInItem)
@@ -336,6 +338,7 @@ final class AppModel {
 
     func reveal(_ appId: String) {
         scrollTarget = notifications.rowToReveal(forClickedNotificationOf: appId)
+        openMainRequest += 1
     }
 
     private func runOperation(_ id: String, _ work: @escaping () async throws -> Void) {

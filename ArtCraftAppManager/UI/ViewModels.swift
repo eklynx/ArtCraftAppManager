@@ -185,4 +185,10 @@ enum AppLifecyclePolicy {
     static func showsWindowOnLaunch(startedByLoginItem: Bool) -> Bool { !startedByLoginItem }
     /// REQ-WIN-9
     static func hasMenuBarItem(launchAtLogin: Bool) -> Bool { launchAtLogin }
+    /// REQ-WIN-29: with no open window, the Manager lives only in the menu bar, so the Dock icon is hidden.
+    static func hidesDockIcon(launchAtLogin: Bool, hasVisibleWindows: Bool) -> Bool { launchAtLogin && !hasVisibleWindows }
+    /// REQ-WIN-29: a login-item launch shows no window, so with Launch at login on it also starts without a Dock icon.
+    static func startsWithDockIcon(startedByLoginItem: Bool, launchAtLogin: Bool) -> Bool {
+        !hidesDockIcon(launchAtLogin: launchAtLogin, hasVisibleWindows: showsWindowOnLaunch(startedByLoginItem: startedByLoginItem))
+    }
 }
