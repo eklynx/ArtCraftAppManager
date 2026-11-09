@@ -185,3 +185,9 @@ final class FakeManagerUpdater: ManagerUpdating {
     func checkForUpdates() { checks += 1 }
 }
 
+final class FakeActivationPolicy: ActivationPolicyControlling {
+    private(set) var changes: [Bool] = []
+    var dockIconVisible: Bool? { changes.last }
+    @MainActor func setDockIconVisible(_ visible: Bool) { changes.append(visible) }
+}
+

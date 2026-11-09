@@ -151,3 +151,10 @@ Running log of decisions, changes and tradeoffs beyond the README. Dated 2026-10
 - Key mishap: I first stored the error text `ERROR: private-key-file already exists: /dev/stdout` in 1Password and the GitHub secret (`generate_keys -x /dev/stdout` refuses existing paths) and wrongly reported it as verified. Caught by the user; re-exported through a temp file, stored again, and checked by signing with it.
 - Not done: a live end-to-end update from a real Feed (needs a released Sparkle build first). The Settings window got a section but I did not run the UI tests.
 
+## Dock icon hidden in menu-bar-only mode (REQ-WIN-29)
+- Uses `NSApp.setActivationPolicy(.accessory/.regular)` switched at run time, not `LSUIElement` (which hides the icon permanently). `DockVisibilityController` watches window key/main/close notifications and `UserDefaults` changes; the rule is `AppLifecyclePolicy.hidesDockIcon`.
+- Only real windows count (visible, not an `NSPanel`, `canBecomeMain`), so the status item's window does not keep the icon alive. `willClose` fires while the window still reports visible, so the check runs on the next run-loop turn.
+- Added beyond the request: a clicked update notification now opens the main window (`AppModel.openMainRequest`, observed by the menu bar label). Before, it only set the scroll target, which would activate an accessory app with no window.
+- The controller is not created in unit or UI test launches, so tests never change the Dock.
+- Not verified by eye: I have not watched the Dock in a running app; please check the manual steps in the PR.
+
